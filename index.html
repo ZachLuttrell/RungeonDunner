@@ -3353,7 +3353,7 @@ function snapshotFloor(){
 /* ===== FLOOR / END ===== */
 function nextFloor(){
   snapshotFloor(); // capture this floor before we change anything
-  floor++;player.maxhp+=2;player.hp=Math.min(player.hp+5,player.maxhp);player.atk=Math.min(player.atk+1,15);
+  floor++;player.hp=Math.min(player.hp+5,player.maxhp);
   // Tick buff
   if(player.buffFloors>0){player.buffFloors--;if(player.buffFloors<=0){player.buffAtk=0;statusEffects.rage=0;log(`The rage of the slain Guardian fades from your blood.`,'info');}}
   if(statusEffects.rage>0)statusEffects.rage--;

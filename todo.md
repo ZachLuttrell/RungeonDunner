@@ -7,14 +7,21 @@ Living list of ideas and improvements. Check items off as they ship.
 - [x] **Iron Constitution doesn't stack / persist** — should be buyable repeatedly and the max-HP gains should carry across floors, not reset after floor 1
 - [x] **Health rune (store) appears to do nothing** — effect isn't wired up to the stat path
 - [x] **Portals can spawn in the single-cell corridor leading into the last room**, leaving tiles permanently unreachable (player would have to walk across the portal cell to access them)
-- [ ] **Strength Rune likely has the same cap bug as Iron Constitution** (`player.atk` is clamped to 15 on every floor transition, same line) — flagged for confirmation
+- [x] **Strength Rune had the same cap bug as Iron Constitution** — fixed implicitly by removing the per-floor auto-grow (see design note below)
+- [ ] **Watch enemy balance** — automatic per-floor +2 HP / +1 ATK was removed (design call: progression should be intentional). Enemies still scale per floor, so the player may now feel underpowered in mid-to-late runs. Revisit if it plays badly.
 
 Iron Constitution and Vitality Rune had a shared root cause: `nextFloor()`
 was running `player.maxhp = Math.min(player.maxhp + 2, 40)` on every floor
 transition, clamping max HP back down to 40 and erasing any meta or
-in-run bonuses. Cap removed. Portal bug: exit corners are now filtered to
-exclude any cell where a corridor enters the room from outside; the player
-can no longer be forced to step on the portal to access the rest of the room.
+in-run bonuses. The same `Math.min(player.atk + 1, 15)` clamp hit the
+Strength Rune. Both auto-grow lines were removed entirely — max HP and
+ATK now only grow through explicit player choices (Iron Constitution,
+runes, elixirs, etc.), so every progression beat feels earned. Portal
+bug: exit corners are now filtered to exclude any cell where a corridor
+enters the room from outside; the player can no longer be forced to
+step on the portal to access the rest of the room. The small +5 HP
+between-floor heal was kept as a breather — easy to remove later if it
+feels too generous.
 
 ## 1. Game feel & dopamine (the through-line)
 
