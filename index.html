@@ -336,6 +336,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 #stats-time-block{text-align:center;margin-bottom:10px;}
 #stats-time-block .st-lbl{font-size:8px;color:var(--text2);letter-spacing:3px;text-transform:uppercase;}
 #stats-time{font-family:'Share Tech Mono',monospace;font-size:32px;color:#d891ff;letter-spacing:3px;line-height:1.1;text-shadow:0 0 12px rgba(216,145,255,0.5);}
+#stats-par{font-family:'Share Tech Mono',monospace;font-size:9px;color:#6a4a8a;letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
 #stats-bonus{text-align:center;font-size:11px;color:#f1c40f;letter-spacing:2px;margin-bottom:14px;text-shadow:0 0 10px rgba(241,196,15,0.55);font-weight:bold;}
 #stats-grid{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
 .st-row{display:flex;justify-content:space-between;align-items:center;padding:5px 9px;background:#0c001e;border:1px solid #240040;border-radius:3px;font-size:10px;}
@@ -720,6 +721,7 @@ button{touch-action:manipulation;}
     <div id="stats-time-block">
       <div class="st-lbl">CLEAR TIME</div>
       <div id="stats-time">0:00</div>
+      <div id="stats-par">par 0:00</div>
     </div>
     <div id="stats-bonus">+0🪙 Speed Bonus</div>
     <div id="stats-grid">
@@ -2006,6 +2008,14 @@ function buildFloor(){
       Music.run(true);
     }
     // else: same theme as last floor, keep playing whatever's going
+  }
+  // Compute par time once monsters/bosses are placed: rewards "running"
+  // through dense floors as well as sparse ones.
+  if(floorStats){
+    const enemyCount=monsters.filter(m=>!m.isMinion).length;
+    const hasBoss=monsters.some(m=>m.isBoss);
+    floorStats.enemyCount=enemyCount;
+    floorStats.parTime=5 + (GW*GH)/70 + enemyCount*1.8 + (hasBoss?10:0);
   }
   setTimeout(()=>log(loreLine,'sl'),400);
 }
@@ -3418,15 +3428,18 @@ function showFloorStats(){
   const elapsedMs=Date.now()-floorStats.startTime;
   const elapsedSec=elapsedMs/1000;
   const goldGained=Math.max(0,player.gold-floorStats.startGold);
-  // Speed tiers
+  // Par-based speed tiers: thresholds scale with map size, enemy count,
+  // and boss presence so dense floors aren't punished for taking longer.
+  const par=floorStats.parTime||30;
   let tierLabel,tierColor,bonusGold;
-  if(elapsedSec<45){ tierLabel='⚡ LIGHTNING DUNNER ⚡'; tierColor='#f1c40f'; bonusGold=8+floor*2; }
-  else if(elapsedSec<90){ tierLabel='✦ SWIFT ✦'; tierColor='#d891ff'; bonusGold=4+floor; }
-  else if(elapsedSec<150){ tierLabel='ON TIME'; tierColor='#9b59b6'; bonusGold=Math.max(1,Math.floor(floor/2)); }
+  if(elapsedSec<par*0.7){ tierLabel='⚡ LIGHTNING DUNNER ⚡'; tierColor='#f1c40f'; bonusGold=4+floor*2; }
+  else if(elapsedSec<par*1.1){ tierLabel='✦ SWIFT ✦'; tierColor='#d891ff'; bonusGold=2+floor; }
+  else if(elapsedSec<par*1.6){ tierLabel='ON TIME'; tierColor='#9b59b6'; bonusGold=Math.max(1,Math.floor(floor/2)); }
   else { tierLabel='STEADY'; tierColor='#6a4a8a'; bonusGold=0; }
   if(bonusGold>0){ player.gold+=bonusGold; try{ SFX.bossVictory(); }catch(e){} }
   document.getElementById('stats-wing').textContent='Wing '+floor+' Cleared';
   document.getElementById('stats-time').textContent=formatFloorTime(elapsedMs);
+  document.getElementById('stats-par').textContent='par '+formatFloorTime(par*1000);
   const tierEl=document.getElementById('stats-tier');
   tierEl.textContent=tierLabel;
   tierEl.style.color=tierColor;
