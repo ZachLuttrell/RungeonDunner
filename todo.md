@@ -1,0 +1,109 @@
+# Rungeon Dunner — Roadmap
+
+Living list of ideas and improvements. Check items off as they ship.
+
+## 1. Game feel & dopamine (the through-line)
+
+- [ ] Maximize stimulation feedback (VFX, screen shake, sound, particles, etc.)
+- [ ] **Post-floor stats screen** (kills, gold, time, damage dealt/taken) + time-based bonus
+- [ ] **One-tap continue** between floors
+
+The stats screen is the single highest-ROI dopamine win in this list — short
+build, hits the variable-reward loop hard, and the speed bonus subtly enforces
+the "Rungeon" brand promise. Should be near the top of the queue. The general
+"more juice" goal isn't really a task — it's a lens we apply to every other
+change. Worth defining 2-3 concrete juice rules (e.g. every kill = screen shake
++ flash + sound, every level-up = freeze-frame + zoom) so we don't have to
+debate it case by case.
+
+## 2. Art / asset overhaul
+
+- [ ] Custom player + enemy + boss sprites
+- [ ] Custom weapon graphics
+- [ ] Custom map textures (walls, floors, traps, shops) — per-floor palette preserved
+- [ ] Castle aesthetic for boss / mega-boss floors
+
+Working in a repo makes this dramatically easier — we can drop a `/sprites` and
+`/textures` folder, reference image files instead of emoji glyphs, and version
+them. This is the biggest "feels like a real game" lever AND the longest pole.
+Do it in vertical slices (one floor's full art pack at a time) rather than
+swapping all emoji enemies at once, so we always have a playable state. Castle
+floors are a natural showcase to start the art experiment on — high visual
+contrast for low scope.
+
+## 3. Spell system rework
+
+- [ ] Upgraded spells as **books** dropped by late bosses (vs scrolls for new spells)
+- [ ] **5 spell slots + 1 blast slot** → loadout-driven builds
+- [ ] Spells found on map *and/or* locked inside castle structures
+- [ ] **Player map manipulation** spells (tunnel, explosion clears nearest-neighbor blocks)
+
+The slot constraint is what makes the system replayable — but only matters once
+we have meaningfully more than 6 spells. Implementation order is probably:
+1) add the slot system (even with current spells), 2) build out more spells /
+upgrade tiers, 3) gate them behind drops and castle exploration. Map-manipulation
+spells are exciting but a big design risk — they break level generator
+assumptions (sealed rooms, hazard layouts). Worth prototyping early with the
+smallest possible version (e.g. single tunnel spell, 3-block range, only carves
+non-structural walls) to feel out the implications before committing.
+
+## 4. Melee / combo
+
+- [ ] Upgraded melee weapons that hit **multiple adjacent cells** as combo heats up
+
+Small, self-contained, and the kind of mechanic that's instantly satisfying once
+it triggers. Pairs beautifully with juice (the moment a combo ticks into AoE
+range should be a *moment*). Good mid-priority pick.
+
+## 5. Level pacing & structure
+
+- [ ] **Randomize floor lengths** within a reasonable range (helps music breathing room)
+- [ ] **Larger maps** the deeper you go
+- [ ] New **mega-boss tier** introduced ~3rd boss stage
+- [ ] Mega-boss floors on bigger maps with castle aesthetics
+
+Floor-length randomization is a one-day change with outsized payoff for the
+audio experience — easy yes. Larger maps deeper down is conceptually simple but
+interacts with everything (camera, spawn density, energy/heal economy, run
+length) — needs a quick playtest pass after we ship it. Mega-bosses depend on
+having a real visual upgrade in place, so they probably want to come after the
+art slice for castles lands.
+
+## 6. Monster capture (raise spell rework)
+
+- [ ] **Capture, don't summon** — weaken target below HP threshold
+- [ ] Spell tier gates which mobs are capturable (low-level bosses require high raise tier)
+- [ ] **Persistent companion** that gains stats across battles
+- [ ] Each kill scored by the companion boosts it
+
+The most ambitious cluster — essentially a whole sub-system (capture UX,
+companion AI, persistence, stat curves, balance against player power). Tons of
+identity-defining potential though. Scope a "minimum lovable version" first: one
+capturable enemy type, one persistent companion that levels up, no
+roster/swapping yet. Get the feel right, then expand. Don't try to do it the
+same sprint as anything else big.
+
+## 7. Meta / outside the core loop
+
+- [ ] "More to do outside of the core game" — needs fleshing out
+
+The most vague item. Possibilities to consider: a town hub between runs,
+unlockable cosmetics, a bestiary that fills in as you encounter enemies, daily
+challenges, an expanded Codex with lore unlocks. Each is a very different
+scope — revisit when ideas firm up.
+
+---
+
+## Suggested shipping order
+
+1. **Post-floor stats + speed bonus + one-tap continue** — fastest dopamine hit, defines the game's identity as "Rungeon"
+2. **Floor-length randomization** — one-day change, fixes the music pacing complaint
+3. **Spell slot system** (5+1) with current spells — sets up everything else
+4. **Juice pass** — codify the VFX/audio rules and apply them across existing events
+5. **First art vertical slice** — one floor (probably castle for visual punch) gets full custom sprites/textures
+6. **Combo-melee AoE**
+7. **Map manipulation spell** (tunnel, prototype only)
+8. **Monster capture v1** (one mob, one companion)
+9. **Mega-bosses + larger deep-floor maps** (after art is in)
+
+The meta/outside-core bullet stays parked until it's fleshed out.
