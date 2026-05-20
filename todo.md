@@ -2,11 +2,24 @@
 
 Living list of ideas and improvements. Check items off as they ship.
 
+## 0. Bugs
+
+- [ ] **Iron Constitution doesn't stack / persist** — should be buyable repeatedly and the max-HP gains should carry across floors, not reset after floor 1
+- [ ] **Health rune (store) appears to do nothing** — effect isn't wired up to the stat path
+- [ ] **Portals can spawn in the single-cell corridor leading into the last room**, leaving tiles permanently unreachable (player would have to walk across the portal cell to access them)
+
+Bugs should generally get cleared before new feature work — Iron Constitution
+and the health rune are core economy issues (player pays gold for nothing), and
+the corridor-portal bug can soft-block loot. For the portal placement, the fix
+is probably to exclude cells whose removal would disconnect part of the floor
+(articulation points) from the candidate set.
+
 ## 1. Game feel & dopamine (the through-line)
 
 - [ ] Maximize stimulation feedback (VFX, screen shake, sound, particles, etc.)
 - [ ] **Post-floor stats screen** (kills, gold, time, damage dealt/taken) + time-based bonus
 - [ ] **One-tap continue** between floors
+- [ ] **Store purchase feedback** — animated stat-number tick-up when a stat increases, plus an "upgrade" sound effect
 
 The stats screen is the single highest-ROI dopamine win in this list — short
 build, hits the variable-reward loop hard, and the speed bonus subtly enforces
@@ -50,10 +63,14 @@ non-structural walls) to feel out the implications before committing.
 ## 4. Melee / combo
 
 - [ ] Upgraded melee weapons that hit **multiple adjacent cells** as combo heats up
+- [ ] **Weapon pickup cards** (same pattern as new-spell cards) — show weapon art + quick stats, tappable through so repeat players aren't bogged down
+- [ ] **Triumphant sound** plays on new weapon pickup
 
 Small, self-contained, and the kind of mechanic that's instantly satisfying once
 it triggers. Pairs beautifully with juice (the moment a combo ticks into AoE
-range should be a *moment*). Good mid-priority pick.
+range should be a *moment*). Good mid-priority pick. The weapon-pickup card +
+sound creates parallelism with the spell-pickup beat and makes weapons feel
+like first-class loot instead of silent stat boosts.
 
 ## 5. Level pacing & structure
 
