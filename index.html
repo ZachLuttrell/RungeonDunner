@@ -1789,7 +1789,20 @@ function buildFloor(){
     {x:exitRoom.x,y:exitRoom.y+exitRoom.h-1},
     {x:exitRoom.x+exitRoom.w-1,y:exitRoom.y+exitRoom.h-1},
   ].filter(c=>c.x!==player.x||c.y!==player.y);
-  const exitCorner=exitCorners[rng(0,exitCorners.length-1)];
+  // Avoid corners where a corridor enters the room — stepping onto the portal
+  // there would warp the player before they could reach the rest of the room.
+  const isCorridorEntry=(c)=>{
+    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const nx=c.x+dx,ny=c.y+dy;
+      if(nx<0||nx>=GW||ny<0||ny>=GH) continue;
+      const inside=nx>=exitRoom.x&&nx<exitRoom.x+exitRoom.w&&ny>=exitRoom.y&&ny<exitRoom.y+exitRoom.h;
+      if(!inside&&grid[pos(nx,ny)]===TILES.FLOOR) return true;
+    }
+    return false;
+  };
+  const safeCorners=exitCorners.filter(c=>!isCorridorEntry(c));
+  const cornerPool=safeCorners.length>0?safeCorners:exitCorners;
+  const exitCorner=cornerPool[rng(0,cornerPool.length-1)];
   items.push({x:exitCorner.x,y:exitCorner.y,type:'exit'});
 
   const usedSet=new Set([pos(player.x,player.y),pos(exitCorner.x,exitCorner.y)]);
@@ -3340,7 +3353,7 @@ function snapshotFloor(){
 /* ===== FLOOR / END ===== */
 function nextFloor(){
   snapshotFloor(); // capture this floor before we change anything
-  floor++;player.maxhp=Math.min(player.maxhp+2,40);player.hp=Math.min(player.hp+5,player.maxhp);player.atk=Math.min(player.atk+1,15);
+  floor++;player.maxhp+=2;player.hp=Math.min(player.hp+5,player.maxhp);player.atk=Math.min(player.atk+1,15);
   // Tick buff
   if(player.buffFloors>0){player.buffFloors--;if(player.buffFloors<=0){player.buffAtk=0;statusEffects.rage=0;log(`The rage of the slain Guardian fades from your blood.`,'info');}}
   if(statusEffects.rage>0)statusEffects.rage--;

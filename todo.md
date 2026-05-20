@@ -4,15 +4,17 @@ Living list of ideas and improvements. Check items off as they ship.
 
 ## 0. Bugs
 
-- [ ] **Iron Constitution doesn't stack / persist** — should be buyable repeatedly and the max-HP gains should carry across floors, not reset after floor 1
-- [ ] **Health rune (store) appears to do nothing** — effect isn't wired up to the stat path
-- [ ] **Portals can spawn in the single-cell corridor leading into the last room**, leaving tiles permanently unreachable (player would have to walk across the portal cell to access them)
+- [x] **Iron Constitution doesn't stack / persist** — should be buyable repeatedly and the max-HP gains should carry across floors, not reset after floor 1
+- [x] **Health rune (store) appears to do nothing** — effect isn't wired up to the stat path
+- [x] **Portals can spawn in the single-cell corridor leading into the last room**, leaving tiles permanently unreachable (player would have to walk across the portal cell to access them)
+- [ ] **Strength Rune likely has the same cap bug as Iron Constitution** (`player.atk` is clamped to 15 on every floor transition, same line) — flagged for confirmation
 
-Bugs should generally get cleared before new feature work — Iron Constitution
-and the health rune are core economy issues (player pays gold for nothing), and
-the corridor-portal bug can soft-block loot. For the portal placement, the fix
-is probably to exclude cells whose removal would disconnect part of the floor
-(articulation points) from the candidate set.
+Iron Constitution and Vitality Rune had a shared root cause: `nextFloor()`
+was running `player.maxhp = Math.min(player.maxhp + 2, 40)` on every floor
+transition, clamping max HP back down to 40 and erasing any meta or
+in-run bonuses. Cap removed. Portal bug: exit corners are now filtered to
+exclude any cell where a corridor enters the room from outside; the player
+can no longer be forced to step on the portal to access the rest of the room.
 
 ## 1. Game feel & dopamine (the through-line)
 
