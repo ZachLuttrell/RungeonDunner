@@ -1409,9 +1409,32 @@ const FLOOR_THEMES=[
 ];
 
 function getTheme(flr){
-  // Floors 1-2: dungeon, 3-4: catacombs, 5-6: crystal, 7-8: hellforge, 9+: abyss cycling
-  const idx=Math.min(Math.floor((flr-1)/2),FLOOR_THEMES.length-1);
-  return FLOOR_THEMES[idx];
+  return FLOOR_THEMES[getCurrentBlock(flr).themeIdx];
+}
+
+// Theme blocks: each block is 3-5 floors total (2-4 normal + 1 boss at the end).
+// Rolled lazily and cached so the schedule is stable across the run.
+let themeSchedule=[]; // [{themeIdx, startFloor, length, bossFloor}]
+function ensureThemeSchedule(flr){
+  while(themeSchedule.length===0 || themeSchedule[themeSchedule.length-1].bossFloor < flr){
+    const last=themeSchedule[themeSchedule.length-1];
+    const startFloor=last?last.bossFloor+1:1;
+    const idx=themeSchedule.length;
+    const len=rng(3,5);
+    themeSchedule.push({
+      themeIdx: idx % FLOOR_THEMES.length,
+      startFloor,
+      length: len,
+      bossFloor: startFloor + len - 1
+    });
+  }
+}
+function getCurrentBlock(flr){
+  ensureThemeSchedule(flr);
+  return themeSchedule.find(b => flr >= b.startFloor && flr <= b.bossFloor);
+}
+function isBossFloor(flr){
+  return flr === getCurrentBlock(flr).bossFloor;
 }
 
 /* ===== META-PROGRESSION ===== */
@@ -1628,6 +1651,7 @@ function startGame(){
   hideTitleScreen();
   // Music handled by buildFloor based on floor theme / boss state
   floor=1;kills=0;combo=0;weaponIdx=0;rangedMode=false;rangedTargetIdx=0;
+  themeSchedule=[]; // re-roll theme block schedule each run
   raiseMode=false;raiseSpellIdx=-1;raisePlacementIdx=0;
   throwsLeft=3+metaBonus('throws');
   // Charge-based spell system: charges[i] = current pips, unlocked[i] = found scroll
@@ -1860,7 +1884,7 @@ function buildFloor(){
     items.push({x:si%GW,y:Math.floor(si/GW),type:'shop'});
   }
 
-  const hasBoss=floor%3===0;
+  const hasBoss=isBossFloor(floor);
   if(hasBoss&&freePool.length>0){
     const bi=freePool.splice(0,1)[0];
     const bm=BOSSES[rng(0,BOSSES.length-1)];
@@ -1870,7 +1894,7 @@ function buildFloor(){
 
   if(floor>=2&&weaponIdx<WEAPONS.length-1&&freePool.length>0){
     // Always spawn a weapon upgrade — either on boss floors or with 50% chance normally
-    if(floor%3===0||Math.random()<0.5){
+    if(hasBoss||Math.random()<0.5){
       const wi=freePool.splice(0,1)[0];
       items.push({x:wi%GW,y:Math.floor(wi/GW),type:'weapon',wIdx:weaponIdx+1});
     }
@@ -1996,7 +2020,7 @@ function buildFloor(){
     log(`◈ Wing ${floor} — ${currentTheme.name.toUpperCase()}`,'info');
     Ambience.start(false);
     // Theme music transitions
-    const themeIdx = Math.min(Math.floor((floor-1)/2), FLOOR_THEMES.length-1);
+    const themeIdx = getCurrentBlock(floor).themeIdx;
     if (_bossActive) {
       // Just came off a boss floor — new run song to mark the next era
       _bossActive = false;

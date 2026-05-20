@@ -88,17 +88,16 @@ like first-class loot instead of silent stat boosts.
 
 ## 5. Level pacing & structure
 
-- [ ] **Randomize floor lengths** within a reasonable range (helps music breathing room)
+- [x] **Randomize floor lengths** — themes now group into blocks of 3–5 floors (2–4 normal + 1 boss at the end), so music gets breathing room and boss floors close out a theme
 - [ ] **Larger maps** the deeper you go
 - [ ] New **mega-boss tier** introduced ~3rd boss stage
 - [ ] Mega-boss floors on bigger maps with castle aesthetics
 
-Floor-length randomization is a one-day change with outsized payoff for the
-audio experience — easy yes. Larger maps deeper down is conceptually simple but
-interacts with everything (camera, spawn density, energy/heal economy, run
-length) — needs a quick playtest pass after we ship it. Mega-bosses depend on
-having a real visual upgrade in place, so they probably want to come after the
-art slice for castles lands.
+Larger maps deeper down is conceptually simple but interacts with everything
+(camera, spawn density, energy/heal economy, run length) — needs a quick
+playtest pass after we ship it. Mega-bosses depend on having a real visual
+upgrade in place, so they probably want to come after the art slice for
+castles lands.
 
 ## 6. Monster capture (raise spell rework)
 
