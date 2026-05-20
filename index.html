@@ -326,6 +326,24 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 #shop-close{width:100%;padding:9px;background:transparent;border:1px solid #3a005a;border-radius:3px;color:#9b59b6;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:10px;transition:all 0.18s;flex-shrink:0;}
 #shop-close:hover{background:#150025;border-color:#d891ff;color:#d891ff;}
 
+/* POST-FLOOR STATS */
+#stats-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:320;backdrop-filter:blur(6px);padding:18px;cursor:pointer;}
+#stats-inner{background:#08000f;border:1px solid #4a0070;border-radius:5px;padding:1.4rem 1.5rem 1.2rem;max-width:330px;width:92%;max-height:calc(100dvh - 36px);max-height:calc(100vh - 36px);box-shadow:0 0 60px rgba(155,89,182,0.35);display:flex;flex-direction:column;cursor:default;animation:statsPop 0.34s ease-out;}
+@keyframes statsPop{0%{opacity:0;transform:scale(0.92)}100%{opacity:1;transform:scale(1)}}
+#stats-inner h2{font-family:'UnifrakturMaguntia',cursive;font-size:28px;color:#d06fff;text-align:center;margin-bottom:6px;text-shadow:0 0 22px rgba(216,145,255,0.55);}
+#stats-tier{font-size:13px;text-align:center;letter-spacing:3px;text-transform:uppercase;font-weight:bold;margin-bottom:14px;animation:tierPulse 1.6s ease-in-out infinite;}
+@keyframes tierPulse{0%,100%{opacity:0.82}50%{opacity:1}}
+#stats-time-block{text-align:center;margin-bottom:10px;}
+#stats-time-block .st-lbl{font-size:8px;color:var(--text2);letter-spacing:3px;text-transform:uppercase;}
+#stats-time{font-family:'Share Tech Mono',monospace;font-size:32px;color:#d891ff;letter-spacing:3px;line-height:1.1;text-shadow:0 0 12px rgba(216,145,255,0.5);}
+#stats-bonus{text-align:center;font-size:11px;color:#f1c40f;letter-spacing:2px;margin-bottom:14px;text-shadow:0 0 10px rgba(241,196,15,0.55);font-weight:bold;}
+#stats-grid{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
+.st-row{display:flex;justify-content:space-between;align-items:center;padding:5px 9px;background:#0c001e;border:1px solid #240040;border-radius:3px;font-size:10px;}
+.st-row .st-k{color:var(--text2);letter-spacing:1.5px;}
+.st-row .st-v{color:var(--text);font-weight:bold;font-size:12px;}
+#stats-close{width:100%;padding:11px;background:transparent;border:1px solid #5a0090;border-radius:3px;color:#d891ff;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.18s;}
+#stats-close:hover{background:#120022;border-color:#d891ff;box-shadow:0 0 18px rgba(216,145,255,0.3);}
+
 /* OVERLAY */
 #overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;z-index:400;backdrop-filter:blur(5px);}
 #modal{background:#080012;border:1px solid #4a0070;border-radius:6px;padding:2.2rem 1.8rem;max-width:310px;width:90%;text-align:center;box-shadow:0 0 70px rgba(155,89,182,0.28);position:relative;overflow:hidden;}
@@ -691,6 +709,29 @@ button{touch-action:manipulation;}
     <div class="ss">spend wisely · die slowly</div>
     <div id="shop-items"></div>
     <button id="shop-close" onclick="closeShop()"><span style="opacity:0.5;font-size:9px;">[ESC]</span> Leave Shop</button>
+  </div>
+</div>
+
+<!-- POST-FLOOR STATS -->
+<div id="stats-modal" class="hidden" onclick="closeFloorStats()">
+  <div id="stats-inner">
+    <h2 id="stats-wing">Wing Cleared</h2>
+    <div id="stats-tier">SWIFT</div>
+    <div id="stats-time-block">
+      <div class="st-lbl">CLEAR TIME</div>
+      <div id="stats-time">0:00</div>
+    </div>
+    <div id="stats-bonus">+0🪙 Speed Bonus</div>
+    <div id="stats-grid">
+      <div class="st-row"><span class="st-k">⚔ Kills</span><span class="st-v" id="stats-kills">0</span></div>
+      <div class="st-row"><span class="st-k">🪙 Gold</span><span class="st-v" id="stats-gold">0</span></div>
+      <div class="st-row"><span class="st-k">🗡 Attacks</span><span class="st-v" id="stats-attacks">0</span></div>
+      <div class="st-row"><span class="st-k">🎯 Throws</span><span class="st-v" id="stats-throws">0</span></div>
+      <div class="st-row"><span class="st-k">✦ Spells</span><span class="st-v" id="stats-spells">0</span></div>
+      <div class="st-row"><span class="st-k">💥 Dmg Dealt</span><span class="st-v" id="stats-dd">0</span></div>
+      <div class="st-row"><span class="st-k">💢 Dmg Taken</span><span class="st-v" id="stats-dt">0</span></div>
+    </div>
+    <button id="stats-close" onclick="event.stopPropagation();closeFloorStats()"><span style="opacity:0.5;font-size:9px;">[SPACE]</span> Descend Deeper ◈</button>
   </div>
 </div>
 
@@ -1552,6 +1593,7 @@ let raiseMode=false,raiseSpellIdx=-1,raisePlacementIdx=0,raiseValidCells=[];
 let stepsTaken,patienceTurns,corpsePositions;
 let meleeStreak=0,lungesUsed=0; // Blood Frenzy streak; lungesUsed allows 1+frenzy_hold steps
 let floorSnapshots=[]; // [{canvas, exitX, exitY, floorNum}] — one per cleared floor
+let floorStats=null; // per-floor counters; reset on each buildFloor
 let highscore={floor:0,kills:0,gold:0};
 const RUNE_CACHE={};
 function getRune(i){if(!RUNE_CACHE[i])RUNE_CACHE[i]=RUNES[rng(0,RUNES.length-1)];return RUNE_CACHE[i];}
@@ -1742,6 +1784,7 @@ function monsterAttack(m){
     _glassUsedThisFloor = true;
   }
   player.hp-=dmgIn;
+  if(floorStats)floorStats.damageTaken+=dmgIn;
   _tookDamageThisTurn=true;
   if(meleeStreak>0){ log(`💔 Frenzy broken! (was ${meleeStreak} hits)`,'info'); breakStreak(); }
   tickChargesOnDamage(); // Freeze charges on taking damage
@@ -1766,6 +1809,8 @@ function buildFloor(){
     blastReady=true;
     blastCooldownFloor=-1;
   }
+  floorStats={kills:0,attacks:0,throws:0,spells:0,damageDealt:0,damageTaken:0,
+              startTime:Date.now(),startGold:player.gold};
   currentTheme=getTheme(floor);
   // Apply theme body class
   document.body.className=currentTheme.bodyClass;
@@ -2456,6 +2501,7 @@ function throwDagger(m){
   let dmg=Math.max(1,Math.round(eAtk()*0.7));
   if(isCrit)dmg=Math.round(dmg*2);
   m.hp-=dmg;
+  if(floorStats){floorStats.throws++;floorStats.damageDealt+=dmg;}
   spawnParticles(m.x,m.y,isCrit?'#f1c40f':'#aaa',isCrit?14:7);
   spawnDmg(m.x,m.y,`🗡${isCrit?'CRIT!':''}-${dmg}`,isCrit?'#f1c40f':'#ddd');
   log(`Threw dagger at ${m.name}! -${dmg}${isCrit?' (CRIT!)':''}. Throws left: ${throwsLeft}`,'warn');
@@ -2466,15 +2512,15 @@ function throwDagger(m){
 
 /* ===== MOVEMENT ===== */
 function tickStatusPlayer(){
-  if(statusEffects.burn>0){const d=rng(1,3);player.hp-=d;statusEffects.burn--;spawnDmg(player.x,player.y,`🔥-${d}`,'#e74c3c');log(`Burning! -${d} HP`,'bad');SFX.burn();if(player.hp<=0){renderGrid();updateStats();gameOver();return false;}}
-  if(statusEffects.poison>0){player.hp-=1;statusEffects.poison--;spawnDmg(player.x,player.y,`☠-1`,'#2ecc71');log(`Poisoned! -1 HP`,'bad');SFX.poison();if(player.hp<=0){renderGrid();updateStats();gameOver();return false;}}
+  if(statusEffects.burn>0){const d=rng(1,3);player.hp-=d;if(floorStats)floorStats.damageTaken+=d;statusEffects.burn--;spawnDmg(player.x,player.y,`🔥-${d}`,'#e74c3c');log(`Burning! -${d} HP`,'bad');SFX.burn();if(player.hp<=0){renderGrid();updateStats();gameOver();return false;}}
+  if(statusEffects.poison>0){player.hp-=1;if(floorStats)floorStats.damageTaken+=1;statusEffects.poison--;spawnDmg(player.x,player.y,`☠-1`,'#2ecc71');log(`Poisoned! -1 HP`,'bad');SFX.poison();if(player.hp<=0){renderGrid();updateStats();gameOver();return false;}}
   if(statusEffects.shield>0)statusEffects.shield--;
   return true;
 }
 function tickMonsterDoT(){
   monsters.forEach(m=>{
-    if(m.burning>0){const d=rng(1,2);m.hp-=d;m.burning--;spawnParticles(m.x,m.y,'#e74c3c',4);}
-    if(m.poisoned>0){m.hp-=1;m.poisoned--;spawnParticles(m.x,m.y,'#2ecc71',3);}
+    if(m.burning>0){const d=rng(1,2);m.hp-=d;if(floorStats)floorStats.damageDealt+=d;m.burning--;spawnParticles(m.x,m.y,'#e74c3c',4);}
+    if(m.poisoned>0){m.hp-=1;if(floorStats)floorStats.damageDealt+=1;m.poisoned--;spawnParticles(m.x,m.y,'#2ecc71',3);}
     if(m.stunned>0)m.stunned--;
   });
   const dotDead=monsters.filter(m=>m.hp<=0);
@@ -2513,13 +2559,13 @@ function tryMove(dx,dy){
   const hz=hazards.find(h=>h.x===nx&&h.y===ny);
   if(hz){
     if(hz.type==='lava'){
-      const d=rng(3,6+floor);player.hp-=d;
+      const d=rng(3,6+floor);player.hp-=d;if(floorStats)floorStats.damageTaken+=d;
       spawnDmg(nx,ny,`🌋-${d}`,'#ff3300');spawnParticles(nx,ny,'#ff3300',10);
       log(`🌋 LAVA! -${d} HP!`,'bad');flash('red',300);SFX.burn();
       if(player.hp<=0){updateFog();renderGrid();updateStats();gameOver();return;}
     } else if(hz.type==='trap'&&hz.armed){
       hz.armed=false;
-      const d=rng(2,4+floor);player.hp-=d;
+      const d=rng(2,4+floor);player.hp-=d;if(floorStats)floorStats.damageTaken+=d;
       spawnDmg(nx,ny,`⚠-${d}`,'#e74c3c');spawnParticles(nx,ny,'#e74c3c',8);
       log(`⚠ TRAP! -${d} HP!`,'bad');flash('red',200);SFX.playerHit();
       if(player.hp<=0){updateFog();renderGrid();updateStats();gameOver();return;}
@@ -2578,7 +2624,7 @@ function tryMove(dx,dy){
       }
     }
     else if(item.type==='shop'){openShop();SFX.shop();items.splice(ii,1);doEndOfTurn();return;}
-    else if(item.type==='exit'){nextFloor();return;}
+    else if(item.type==='exit'){showFloorStats();return;}
     items.splice(ii,1);
   }
   doEndOfTurn();
@@ -2706,6 +2752,7 @@ function playerCombat(m){
   if(isCrit)dmgOut=Math.round(dmgOut*2.2);
   if(isStunBonus)dmgOut=Math.round(dmgOut*1.5);
   m.hp-=dmgOut;
+  if(floorStats){floorStats.attacks++;floorStats.damageDealt+=dmgOut;}
   // Slash arc from player to target
   const slashColor=isCrit?'#ffeebb':streakTier()>=2?'#ff8855':w.col||'#ffffff';
   spawnSlash(player.x,player.y,m.x,m.y,slashColor,isCrit);
@@ -2734,6 +2781,7 @@ function playerCombat(m){
 function killMonster(m){
   const drop=rng(m.isBoss?10:1,m.isBoss?22:3+floor);
   player.gold+=drop;kills++;combo++;
+  if(floorStats)floorStats.kills++;
   clearTimeout(comboTimer);comboTimer=setTimeout(()=>{combo=0;showCombo(0);},4000);
   showCombo(combo);
   if(combo>=2)SFX.combo(combo);
@@ -2962,6 +3010,7 @@ function castBlast(){
   // Consume: drain ALL spell charges, deduct HP
   SPELLS.forEach((sp,i)=>{ spellCharges[i]=0; });
   player.hp -= hpCost;
+  if(floorStats){floorStats.spells++;floorStats.damageTaken+=hpCost;}
   blastReady = false;
   blastCooldownFloor = floor;
   breakStreak();
@@ -2990,6 +3039,7 @@ function castBlast(){
       const pct = 0.8 + Math.random() * 0.2;
       const dmg = Math.max(1, Math.round(m.maxhp * pct));
       m.hp -= dmg;
+      if(floorStats)floorStats.damageDealt+=dmg;
       spawnRing(m.x, m.y, '#ffeebb', 80, 460);
       spawnParticles(m.x, m.y, '#ffaa00', 14, 6);
       spawnDmg(m.x, m.y, `💥-${dmg}`, '#ff8800');
@@ -3052,6 +3102,7 @@ function castSpell(i){
   if(meleeStreak>0) breakStreak(); // spells break the frenzy
   const ratio=Math.min(1, charge/maxPips);
   spellCharges[i]=0;
+  if(floorStats)floorStats.spells++;
   flash('purple',200);
   patienceTurns=0; // casting breaks patience streak for Ward
 
@@ -3066,7 +3117,7 @@ function castSpell(i){
     // Per-target impact
     targets.forEach(m=>{
       const d=Math.round(rng(4+floor,8+floor*2)*dmgMult);
-      m.hp-=d;if(ratio>=0.75)m.burning=3;
+      m.hp-=d;if(floorStats)floorStats.damageDealt+=d;if(ratio>=0.75)m.burning=3;
       // Delayed impact: feels like the shockwave reaching them
       const delay=Math.min(280, dist(player.x,player.y,m.x,m.y)*60);
       setTimeout(()=>{
@@ -3100,6 +3151,7 @@ function castSpell(i){
     if(m){
       const d=rng(12+floor,20+floor*2);
       m.hp-=d;
+      if(floorStats)floorStats.damageDealt+=d;
       // Thunder bolt strike from above
       flash('white',180);
       spawnThunderBolt(m.x, m.y);
@@ -3351,6 +3403,56 @@ function snapshotFloor(){
 }
 
 /* ===== FLOOR / END ===== */
+function formatFloorTime(ms){
+  const totalSec=Math.floor(ms/1000);
+  const mm=Math.floor(totalSec/60);
+  const ss=totalSec%60;
+  return mm+':'+(ss<10?'0':'')+ss;
+}
+
+let _prevStateBeforeStats=null;
+function showFloorStats(){
+  if(!floorStats){ nextFloor(); return; }
+  _prevStateBeforeStats=gameState;
+  gameState='stats';
+  const elapsedMs=Date.now()-floorStats.startTime;
+  const elapsedSec=elapsedMs/1000;
+  const goldGained=Math.max(0,player.gold-floorStats.startGold);
+  // Speed tiers
+  let tierLabel,tierColor,bonusGold;
+  if(elapsedSec<45){ tierLabel='⚡ LIGHTNING DUNNER ⚡'; tierColor='#f1c40f'; bonusGold=8+floor*2; }
+  else if(elapsedSec<90){ tierLabel='✦ SWIFT ✦'; tierColor='#d891ff'; bonusGold=4+floor; }
+  else if(elapsedSec<150){ tierLabel='ON TIME'; tierColor='#9b59b6'; bonusGold=Math.max(1,Math.floor(floor/2)); }
+  else { tierLabel='STEADY'; tierColor='#6a4a8a'; bonusGold=0; }
+  if(bonusGold>0){ player.gold+=bonusGold; try{ SFX.bossVictory(); }catch(e){} }
+  document.getElementById('stats-wing').textContent='Wing '+floor+' Cleared';
+  document.getElementById('stats-time').textContent=formatFloorTime(elapsedMs);
+  const tierEl=document.getElementById('stats-tier');
+  tierEl.textContent=tierLabel;
+  tierEl.style.color=tierColor;
+  tierEl.style.textShadow='0 0 12px '+tierColor;
+  const bonusEl=document.getElementById('stats-bonus');
+  if(bonusGold>0){ bonusEl.textContent='+'+bonusGold+'🪙 Speed Bonus'; bonusEl.style.display='block'; }
+  else { bonusEl.style.display='none'; }
+  document.getElementById('stats-kills').textContent=floorStats.kills;
+  document.getElementById('stats-gold').textContent=goldGained;
+  document.getElementById('stats-attacks').textContent=floorStats.attacks;
+  document.getElementById('stats-throws').textContent=floorStats.throws;
+  document.getElementById('stats-spells').textContent=floorStats.spells;
+  document.getElementById('stats-dd').textContent=floorStats.damageDealt;
+  document.getElementById('stats-dt').textContent=floorStats.damageTaken;
+  document.getElementById('stats-modal').classList.remove('hidden');
+  updateStats(); // refresh gold display behind modal
+}
+
+function closeFloorStats(){
+  if(gameState!=='stats') return;
+  document.getElementById('stats-modal').classList.add('hidden');
+  gameState=_prevStateBeforeStats||'playing';
+  _prevStateBeforeStats=null;
+  nextFloor();
+}
+
 function nextFloor(){
   snapshotFloor(); // capture this floor before we change anything
   floor++;player.hp=Math.min(player.hp+5,player.maxhp);
@@ -3598,6 +3700,13 @@ document.addEventListener('keydown',e=>{
     if(k==='1'){e.preventDefault();startGame();gameState='playing';return;}
     if(k==='2'){e.preventDefault();openMeta(false);gameState='codex';return;}
     if(k==='3'){e.preventDefault();returnToTitle();return;}
+    return;
+  }
+
+  // Post-floor stats — any key dismisses
+  if(gameState==='stats'){
+    e.preventDefault();
+    closeFloorStats();
     return;
   }
 

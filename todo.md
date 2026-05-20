@@ -26,9 +26,14 @@ feels too generous.
 ## 1. Game feel & dopamine (the through-line)
 
 - [ ] Maximize stimulation feedback (VFX, screen shake, sound, particles, etc.)
-- [ ] **Post-floor stats screen** (kills, gold, time, damage dealt/taken) + time-based bonus
-- [ ] **One-tap continue** between floors
+- [x] **Post-floor stats screen** (kills, gold, time, damage dealt/taken) + time-based bonus
+- [x] **One-tap continue** between floors
 - [ ] **Store purchase feedback** — animated stat-number tick-up when a stat increases, plus an "upgrade" sound effect
+
+The post-floor stats screen tracks kills, gold, attacks, throws, spells,
+damage dealt, and damage taken. Speed bonus tiers: LIGHTNING DUNNER (<45s),
+SWIFT (<90s), ON TIME (<150s), STEADY (slower). Bonus scales with floor.
+Modal dismisses on any key or tap.
 
 The stats screen is the single highest-ROI dopamine win in this list — short
 build, hits the variable-reward loop hard, and the speed bonus subtly enforces
