@@ -92,6 +92,8 @@ like first-class loot instead of silent stat boosts.
 - [ ] **Larger maps** the deeper you go
 - [ ] New **mega-boss tier** introduced ~3rd boss stage
 - [ ] Mega-boss floors on bigger maps with castle aesthetics
+- [ ] *Revisit later:* tune the theme-block range (currently 3–5). 2–4 or 3–6 are easy alternatives if pacing feels off after more content lands.
+- [ ] *Revisit later:* consider surfacing block progress in the UI ("Wing 2 of 4 · Catacombs") — keeps the boss arrival a surprise vs. lets the player anticipate the climax. Worth a separate playtest pass.
 
 Larger maps deeper down is conceptually simple but interacts with everything
 (camera, spawn density, energy/heal economy, run length) — needs a quick
