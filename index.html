@@ -993,6 +993,25 @@ const SFX = (() => {
       osc('sine', 523, t + 0.12, 0.25, 0.3, m, 659);
     },
 
+    weaponPickup() {
+      // Triumphant new-weapon fanfare: metallic ring + ascending arpeggio
+      // + sub-bass impact + high shimmer. Layered with SFX.weapon() (the
+      // shorter pickup blip) for one bigger moment.
+      const c = getCtx(), t = c.currentTime, m = master(0.5);
+      // Metallic sword-ring on top
+      noise(0.12, 0.45, m, 2400);
+      osc('square', 880, t, 0.12, 0.32, m, 1320);
+      // Ascending triumphant arpeggio C5 -> E5 -> G5 -> C6 -> sustain
+      osc('triangle', 523,  t + 0.05, 0.12, 0.45, m, 659);
+      osc('triangle', 659,  t + 0.13, 0.12, 0.45, m, 784);
+      osc('triangle', 784,  t + 0.21, 0.14, 0.45, m, 1047);
+      osc('triangle', 1047, t + 0.31, 0.30, 0.40, m, 1568);
+      // Sub-bass weight under everything
+      osc('sine', 110, t, 0.5, 0.4, m, 55);
+      // Long shimmer tail
+      osc('sine', 1568, t + 0.35, 0.4, 0.22, m, 2094);
+    },
+
     nextFloor() {
       const c = getCtx(), t = c.currentTime, m = master(0.4);
       const chord = [261, 329, 392, 523];
@@ -3144,7 +3163,75 @@ function killMonster(m){
 }
 
 function pickupWeapon(idx){
-  if(idx>weaponIdx){weaponIdx=idx;throwsLeft+=WEAPONS[idx].throws;const w=WEAPONS[idx];spawnParticles(player.x,player.y,w.col,15);flash('white',200);log(`⚔ Equipped ${w.name}!`,'mega');killFeed(`⚔ WEAPON UP: ${w.name}!`,'bk');SFX.weapon();}
+  if(idx>weaponIdx){
+    weaponIdx=idx;
+    throwsLeft+=WEAPONS[idx].throws;
+    const w=WEAPONS[idx];
+    spawnParticles(player.x,player.y,w.col,15);
+    flash('white',200);
+    log(`⚔ Equipped ${w.name}!`,'mega');
+    killFeed(`⚔ WEAPON UP: ${w.name}!`,'bk');
+    SFX.weapon();
+    try{ SFX.weaponPickup(); }catch(e){}
+    showWeaponUnlockCard(idx);
+  }
+}
+
+function showWeaponUnlockCard(weaponIdx){
+  const w=WEAPONS[weaponIdx];
+  if(!w) return;
+  const existing=document.getElementById('weapon-unlock-card');
+  if(existing) existing.remove();
+  const glyph=(w.name||'').split(' ')[0];
+  const displayName=(w.name||'').split(' ').slice(1).join(' ');
+  const overlay=document.createElement('div');
+  overlay.id='weapon-unlock-card';
+  overlay.style.cssText=`position:fixed;inset:0;z-index:6000;background:rgba(0,0,0,0.55);
+    display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);
+    animation:fadeInTooltip 0.4s ease-out;`;
+  overlay.innerHTML=`
+    <div style="background:linear-gradient(180deg,#1a002a 0%,#0c0018 100%);border:1px solid ${w.col};border-radius:6px;
+                padding:1.6rem 1.4rem 1.2rem;max-width:340px;width:92%;
+                box-shadow:0 0 50px ${w.col}66,0 0 100px ${w.col}33;
+                font-family:'Share Tech Mono',monospace;color:#b09ad0;">
+      <div style="text-align:center;font-size:8px;color:#6a4a8a;letter-spacing:3px;margin-bottom:6px;">WRESTED FROM THE DEPTHS</div>
+      <div style="text-align:center;font-size:9px;color:${w.col};letter-spacing:4px;text-transform:uppercase;margin-bottom:14px;animation:tooltipPulse 2s infinite;text-shadow:0 0 10px ${w.col};">⚔ Weapon Acquired ⚔</div>
+      <div style="text-align:center;margin-bottom:14px;">
+        <div style="font-size:54px;line-height:1;text-shadow:0 0 22px ${w.col},0 0 44px ${w.col}aa;margin-bottom:8px;">${glyph}</div>
+        <div style="font-family:'UnifrakturMaguntia',cursive;font-size:26px;color:${w.col};text-shadow:0 0 14px ${w.col}99;">${displayName}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px;">
+        <div style="background:rgba(0,0,0,0.4);border:1px solid #3a005a;border-radius:3px;padding:8px 4px;text-align:center;">
+          <div style="font-size:7px;color:#6a4a8a;letter-spacing:2px;">ATK</div>
+          <div style="font-size:18px;color:#ff6633;font-weight:bold;text-shadow:0 0 8px rgba(255,102,51,0.5);">${w.atk}</div>
+        </div>
+        <div style="background:rgba(0,0,0,0.4);border:1px solid #3a005a;border-radius:3px;padding:8px 4px;text-align:center;">
+          <div style="font-size:7px;color:#6a4a8a;letter-spacing:2px;">CRIT</div>
+          <div style="font-size:18px;color:#f1c40f;font-weight:bold;text-shadow:0 0 8px rgba(241,196,15,0.5);">${Math.round(w.crit*100)}%</div>
+        </div>
+        <div style="background:rgba(0,0,0,0.4);border:1px solid #3a005a;border-radius:3px;padding:8px 4px;text-align:center;">
+          <div style="font-size:7px;color:#6a4a8a;letter-spacing:2px;">+🗡</div>
+          <div style="font-size:18px;color:#cccccc;font-weight:bold;text-shadow:0 0 8px rgba(204,204,204,0.5);">${w.throws}</div>
+        </div>
+      </div>
+      <button id="weapon-unlock-dismiss" style="width:100%;padding:9px;background:transparent;border:1px solid ${w.col};border-radius:3px;color:${w.col};font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all 0.18s;">[ Continue ]</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  const dismiss=()=>{
+    overlay.style.transition='opacity 0.3s';
+    overlay.style.opacity='0';
+    setTimeout(()=>{ try{ overlay.remove(); }catch(e){} }, 320);
+    document.removeEventListener('keydown', onKey, true);
+    document.removeEventListener('pointerdown', onPointer, true);
+  };
+  const onKey=(e)=>{ e.preventDefault(); e.stopPropagation(); dismiss(); };
+  const onPointer=(e)=>{ if(overlay.contains(e.target)) return; dismiss(); };
+  setTimeout(()=>{
+    document.addEventListener('keydown', onKey, true);
+    document.addEventListener('pointerdown', onPointer, true);
+  },100);
+  document.getElementById('weapon-unlock-dismiss').onclick=dismiss;
+  overlay.onclick=(e)=>{ if(e.target===overlay) dismiss(); };
 }
 
 /* ===== SPELLS ===== */

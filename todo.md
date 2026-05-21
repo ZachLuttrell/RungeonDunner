@@ -88,8 +88,8 @@ non-structural walls) to feel out the implications before committing.
 ## 4. Melee / combo
 
 - [ ] Upgraded melee weapons that hit **multiple adjacent cells** as combo heats up
-- [ ] **Weapon pickup cards** (same pattern as new-spell cards) — show weapon art + quick stats, tappable through so repeat players aren't bogged down
-- [ ] **Triumphant sound** plays on new weapon pickup
+- [x] **Weapon pickup cards** — modal pops up on pickup with the weapon glyph, name, and ATK / CRIT / +throws stats in a 3-column grid; border + accents themed to the weapon's color; tap or any key to continue
+- [x] **Triumphant weapon-pickup SFX** — new SFX.weaponPickup() ascending arpeggio (C5-E5-G5-C6) + metallic ring + sub-bass + shimmer tail, layered over the existing pickup blip
 
 Small, self-contained, and the kind of mechanic that's instantly satisfying once
 it triggers. Pairs beautifully with juice (the moment a combo ticks into AoE
