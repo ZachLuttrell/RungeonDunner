@@ -29,8 +29,8 @@ feels too generous.
 - [x] **Post-floor stats screen** (kills, gold, time, damage dealt/taken) + time-based bonus
 - [x] **One-tap continue** between floors
 - [x] **Store purchase feedback** — animated stat-number tick-up when a stat increases, plus an "upgrade" sound effect
-- [ ] **Better melee sounds** — current melee SFX feels thin; want more weight and variety on hits, crits, and weapon types
-- [ ] **Better throwing-knife sound + visualization** — a projectile that visibly flies from the player into the target and impacts, with a punchier SFX
+- [x] **Better melee sounds** — hit/crit SFX now layer with the melee streak: each successive hit adds sub-bass, mid harmonic, and sparkle tiers, so the audio escalates alongside the streak bonus (dopamaxxing the chain)
+- [x] **Better throwing-knife sound + visualization** — daggers now visually fly from the player to the target (rotating to face direction, spinning during flight) with a new aerodynamic whoosh on release and a sharp thwack on impact
 - [x] **Floor-cleared chime** — small triumphant tone when the last monster on a floor dies (skipped on boss kills since bossVictory already plays)
 - [x] **Boss-floor stats screen variant** — post-floor stats modal now switches to gold/yellow accents with a "Boss Defeated · Wing N" header when the cleared floor was a boss floor
 - [ ] **Death-screen replay polish** — play a small "ding" as each completed floor pops into the stacked pullback view

@@ -92,6 +92,8 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
   100%{opacity:0;transform:rotate(var(--a,0)) scaleX(1.4) translateY(-2px);filter:blur(2px);}
 }
 .fx-slash{transform-origin:center;}
+.fx-projectile{will-change:transform,left,top;}
+@keyframes projectileSpin{from{filter:drop-shadow(0 0 4px currentColor);}to{filter:drop-shadow(0 0 12px currentColor);}}
 @keyframes ringExpand{
   0%{width:8px;height:8px;margin-left:-4px;margin-top:-4px;opacity:1;border-width:3px;}
   100%{width:var(--target-size);height:var(--target-size);margin-left:calc(var(--target-size)/-2);margin-top:calc(var(--target-size)/-2);opacity:0;border-width:1px;}
@@ -824,17 +826,38 @@ const SFX = (() => {
       osc('triangle', 180 + Math.random() * 40, t, 0.08, 0.3, m, 140);
     },
 
-    hit() {
-      const c = getCtx(), t = c.currentTime, m = master(0.45);
-      osc('sawtooth', 220, t, 0.04, 0.6, m, 80);
-      noise(0.12, 0.3, m, 600);
+    hit(tier=0) {
+      const c = getCtx(), t = c.currentTime;
+      const T = Math.max(0, Math.min(4, tier|0));
+      const m = master(0.42 + T * 0.06);
+      // Base thunk — pitch and bite rise slightly with streak
+      osc('sawtooth', 220 + T * 18, t, 0.045 + T * 0.005, 0.6, m, 80 - T * 6);
+      noise(0.12 + T * 0.02, 0.3 + T * 0.04, m, 600 + T * 120);
+      // Sub-bass thump kicks in at tier 2
+      if (T >= 2) osc('square', 90 - T * 4, t, 0.08, 0.32 + (T-2) * 0.05, m, 55);
+      // Mid harmonic layer at tier 3
+      if (T >= 3) osc('triangle', 440 + T * 40, t, 0.06, 0.28, m, 720);
+      // High sparkle on max tier
+      if (T >= 4) {
+        osc('square', 880, t + 0.02, 0.05, 0.22, m, 1320);
+        noise(0.05, 0.35, m, 3000);
+      }
     },
 
-    crit() {
-      const c = getCtx(), t = c.currentTime, m = master(0.55);
-      osc('sawtooth', 350, t, 0.04, 0.8, m, 120);
-      osc('square', 520, t, 0.07, 0.4, m, 200);
-      noise(0.18, 0.5, m, 1200);
+    crit(tier=0) {
+      const c = getCtx(), t = c.currentTime;
+      const T = Math.max(0, Math.min(4, tier|0));
+      const m = master(0.55 + T * 0.05);
+      osc('sawtooth', 350 + T * 22, t, 0.045, 0.8, m, 120);
+      osc('square', 520 + T * 30, t, 0.07, 0.4, m, 200);
+      noise(0.18 + T * 0.02, 0.5, m, 1200 + T * 200);
+      // Heavier impact at higher tiers
+      if (T >= 2) osc('sawtooth', 110, t, 0.1, 0.42, m, 55);
+      if (T >= 3) osc('triangle', 1320, t + 0.02, 0.08, 0.3, m, 1760);
+      if (T >= 4) {
+        osc('square', 1760, t + 0.04, 0.08, 0.28, m, 2640);
+        noise(0.08, 0.4, m, 3600);
+      }
     },
 
     playerHit() {
@@ -1008,9 +1031,19 @@ const SFX = (() => {
     },
 
     throwDagger() {
-      const c = getCtx(), t = c.currentTime, m = master(0.3);
-      noise(0.07, 0.4, m, 1800);
-      osc('triangle', 600, t, 0.08, 0.3, m, 200);
+      // Quick aerodynamic whoosh — the dagger leaving the hand
+      const c = getCtx(), t = c.currentTime, m = master(0.32);
+      noise(0.09, 0.5, m, 2400);
+      osc('triangle', 880, t, 0.07, 0.28, m, 340);  // pitch drop = doppler
+      osc('sine', 1320, t, 0.05, 0.18, m, 660);
+    },
+
+    knifeImpact() {
+      // Sharp thwack on landing — short noise burst + low transient
+      const c = getCtx(), t = c.currentTime, m = master(0.5);
+      noise(0.08, 0.6, m, 1800);
+      osc('sawtooth', 180, t, 0.05, 0.55, m, 60);
+      osc('square', 520, t, 0.03, 0.35, m, 220);
     },
 
     gameOver() {
@@ -2407,6 +2440,48 @@ function spawnSlash(fromX, fromY, toX, toY, color='#ffeebb', isCrit=false){
   setTimeout(()=>slash.remove(), isCrit?400:320);
 }
 
+// Flying projectile from one tile to another. Calls opts.onImpact when it lands.
+function spawnProjectile(fromX, fromY, toX, toY, opts={}){
+  const wrap=document.getElementById('grid-wrap');
+  if(!wrap){ if(opts.onImpact) opts.onImpact(); return; }
+  const from=cellPx(fromX,fromY), to=cellPx(toX,toY);
+  const angle=Math.atan2(to.y-from.y, to.x-from.x);
+  const dx=to.x-from.x, dy=to.y-from.y;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+  const dur=Math.max(120, Math.min(320, 90 + dist*1.4));
+  const glyph=opts.glyph||'🗡';
+  const color=opts.color||'#cccccc';
+  const size=opts.size||20;
+  const proj=document.createElement('div');
+  proj.className='fx-projectile';
+  proj.textContent=glyph;
+  // The 🗡 glyph points to the upper-right (~ -45deg) by default, so subtract
+  // π/4 to align it with the flight direction.
+  const visualAngle=angle - Math.PI/4;
+  proj.style.cssText=`
+    position:absolute;left:${from.x}px;top:${from.y}px;
+    margin-left:${-size/2}px;margin-top:${-size/2}px;
+    width:${size}px;height:${size}px;line-height:${size}px;text-align:center;
+    font-size:${size}px;color:${color};
+    transform:rotate(${visualAngle}rad);
+    text-shadow:0 0 10px ${color},0 0 20px ${color};
+    pointer-events:none;z-index:55;
+    transition:left ${dur}ms linear, top ${dur}ms linear, transform ${dur}ms linear;
+  `;
+  wrap.appendChild(proj);
+  // Trigger flight on next frame so the transition kicks in
+  requestAnimationFrame(()=>{
+    proj.style.left = to.x + 'px';
+    proj.style.top  = to.y + 'px';
+    // Add a full spin during flight for a bit of life
+    proj.style.transform = `rotate(${visualAngle + Math.PI*2}rad)`;
+  });
+  setTimeout(()=>{
+    proj.remove();
+    if(opts.onImpact) opts.onImpact();
+  }, dur);
+}
+
 // Expanding ring wave (used by fireball, crit hits, shockwaves)
 function spawnRing(x, y, color, sizePx=180, durMs=550){
   const wrap=document.getElementById('grid-wrap');
@@ -2566,8 +2641,21 @@ function throwDagger(m){
   if(isCrit)dmg=Math.round(dmg*2);
   m.hp-=dmg;
   if(floorStats){floorStats.throws++;floorStats.damageDealt+=dmg;}
-  spawnParticles(m.x,m.y,isCrit?'#f1c40f':'#aaa',isCrit?14:7);
-  spawnDmg(m.x,m.y,`🗡${isCrit?'CRIT!':''}-${dmg}`,isCrit?'#f1c40f':'#ddd');
+  // Capture for the closure: position and target name are set now in case the
+  // monster moves/dies before the projectile lands (game continues in real time).
+  const fromX=player.x, fromY=player.y, tx=m.x, ty=m.y;
+  const impactColor=isCrit?'#f1c40f':'#aaa';
+  const textColor=isCrit?'#f1c40f':'#ddd';
+  spawnProjectile(fromX, fromY, tx, ty, {
+    color: isCrit ? '#f1c40f' : '#cccccc',
+    glyph: '🗡',
+    onImpact: ()=>{
+      try{ SFX.knifeImpact(); }catch(e){}
+      spawnParticles(tx, ty, impactColor, isCrit?14:7);
+      spawnDmg(tx, ty, `🗡${isCrit?'CRIT!':''}-${dmg}`, textColor);
+      if(isCrit){ flash('white',90); shakeGame('shake'); }
+    }
+  });
   log(`Threw dagger at ${m.name}! -${dmg}${isCrit?' (CRIT!)':''}. Throws left: ${throwsLeft}`,'warn');
   if(m.hp<=0){killMonster(m);monsters=monsters.filter(o=>o.hp>0);}
   updateRangedUI();
@@ -2824,8 +2912,13 @@ function playerCombat(m){
   if(isCrit) spawnCritImpact(m.x,m.y);
   const breakdown=isCrit?`💥×2.2=${dmgOut}`:isStunBonus?`⚡×1.5=${dmgOut}`:`⚔${eAtk()+streakBonusAtk()}−def=${dmgOut}`;
   spawnDmg(m.x,m.y,breakdown,isCrit?'#f1c40f':streakTier()>=2?'#ff6633':'#e74c3c');
-  if(isCrit){log(`💥 CRITICAL! ${breakdown} on ${m.name}!`,'crit');flash('white',120);killFeed(`💥 CRIT! -${dmgOut} on ${m.name}`,'cr');SFX.crit();}
-  else{log(`Struck ${m.name}: ${breakdown} (${Math.max(0,m.hp)}/${m.maxhp} remain)`,'good');SFX.hit();}
+  if(isCrit){log(`💥 CRITICAL! ${breakdown} on ${m.name}!`,'crit');flash('white',120);killFeed(`💥 CRIT! -${dmgOut} on ${m.name}`,'cr');SFX.crit(streakTier()+1);}
+  else{log(`Struck ${m.name}: ${breakdown} (${Math.max(0,m.hp)}/${m.maxhp} remain)`,'good');
+    // Hit SFX escalates with the streak that this hit will complete
+    const ns=meleeStreak+1;
+    const sfxTier=ns>=8?4:ns>=6?3:ns>=4?2:ns>=2?1:0;
+    SFX.hit(sfxTier);
+  }
   Ambience.combatDuck();
   onMeleeHit();
 
