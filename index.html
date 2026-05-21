@@ -1056,6 +1056,44 @@ const SFX = (() => {
       osc('triangle', seqBase * 2,    t + 0.03, 0.22, 0.18, m, seqBase * 1.1);
     },
 
+    blast() {
+      // Heavy thunderclap explosion for the BIDEN BLAST — distinct from the
+      // warp/death sweep so it reads as an attack, not the end of the run.
+      const c = getCtx(), t = c.currentTime, m = master(0.7);
+      // Sharp opening transient
+      noise(0.06, 0.95, m, 250);
+      noise(0.03, 0.85, m, 3500);
+      // Sub-bass shockwave (the boom)
+      osc('sawtooth', 90, t, 0.35, 0.75, m, 30);
+      osc('sine',     60, t + 0.01, 0.5,  0.65, m, 22);
+      // Mid-range crunch
+      osc('square',   240, t,        0.15, 0.5, m, 70);
+      osc('sawtooth', 380, t + 0.02, 0.12, 0.4, m, 110);
+      // Long debris tail
+      noise(0.6,  0.4, m, 1800);
+      noise(0.35, 0.3, m, 4000);
+      // High sparkle bits
+      osc('triangle', 880, t + 0.08, 0.3, 0.22, m, 220);
+    },
+
+    firstDescent() {
+      // Plays as the player commits to a new run — "you've stepped in."
+      // Slam transient, descending whoosh, landing thud, ominous tail.
+      const c = getCtx(), t = c.currentTime, m = master(0.55);
+      // Opening slam — gate closing behind you
+      osc('sawtooth', 200, t, 0.08, 0.55, m, 65);
+      noise(0.18, 0.45, m, 700);
+      // Descending whoosh — falling deeper
+      osc('triangle', 880,  t + 0.05, 0.4, 0.35, m, 110);
+      osc('sine',     1200, t + 0.05, 0.3, 0.22, m, 165);
+      noise(0.5, 0.28, m, 400);
+      // Sub-bass landing
+      osc('sine',     55,  t + 0.45, 0.5,  0.62, m, 32);
+      osc('triangle', 110, t + 0.5,  0.45, 0.32, m, 65);
+      // Resolving low minor tail
+      osc('sine', 165, t + 0.6, 0.7, 0.18, m, 138);
+    },
+
     throwDagger() {
       // Quick aerodynamic whoosh — the dagger leaving the hand
       const c = getCtx(), t = c.currentTime, m = master(0.32);
@@ -1738,6 +1776,7 @@ function hideTitleScreen(){
 function startGame(){
   gameState='playing';
   hideTitleScreen();
+  try { SFX.firstDescent(); } catch(e){}
   // Music handled by buildFloor based on floor theme / boss state
   floor=1;kills=0;combo=0;weaponIdx=0;rangedMode=false;rangedTargetIdx=0;
   themeSchedule=[]; // re-roll theme block schedule each run
@@ -3300,7 +3339,7 @@ function castBlast(){
     // SFX
     try { SFX.thunder(); } catch(e){}
     try { setTimeout(()=>SFX.fireball(), 100); } catch(e){}
-    try { setTimeout(()=>SFX.warpOut(), 200); } catch(e){}
+    try { setTimeout(()=>SFX.blast(), 200); } catch(e){}
 
     updateStats();
     updateSpells();

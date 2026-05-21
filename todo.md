@@ -38,7 +38,8 @@ feels too generous.
 - [x] **Death-screen replay layout** — per-floor rotation dropped, all layers stack at the same scale so portals align pixel-perfect at the center; depth is now expressed only via opacity
 - [x] **Portal transition around stats screen** — stats modal is now wrapped in two counter-rotating conic-gradient purple swirls over a radial-gradient void backdrop, with a radial deep-purple haze instead of a flat black overlay. Open: portal fades in (0.28s) then stats pop in. Close: stats shrink-and-fade (0.22s) while the portal keeps swirling, then the whole portal dissolves (0.36s) as the next floor builds underneath.
 - [ ] **More legible cursor** — current custom cursor renders dark against the mostly-black UI and is often hard to spot; needs a higher-contrast or outlined version
-- [ ] **Powerful blast SFX** — the BLAST attack currently plays the death/game-over sound; needs its own dedicated, weighty explosion sound
+- [x] **Powerful blast SFX** — replaced the warpOut layer in castBlast (which sounded like the death pullback) with a new dedicated SFX.blast() — sub-bass shockwave + thunderclap transient + mid crunch + debris tail
+- [x] **First-descent SFX** — new SFX.firstDescent() plays at startGame: gate-slam transient, descending whoosh, sub-bass landing, low ominous tail. Sells the "you stepped in" moment at the start of every run.
 
 The post-floor stats screen tracks kills, gold, attacks, throws, spells,
 damage dealt, and damage taken. Speed bonus tiers: LIGHTNING DUNNER (<45s),
