@@ -36,7 +36,7 @@ feels too generous.
 - [x] **Death-screen replay polish** — small crystalline "ding" plays as each completed floor pops into the stacked pullback view (pitch climbs slightly per step)
 - [x] **Death-screen replay timing** — reveal cadence now ramps DOWN: 210ms → ×1.22 per step (capped at 720ms) so first few snaps in fast, later ones settle into a reading pace
 - [x] **Death-screen replay layout** — per-floor rotation dropped, all layers stack at the same scale so portals align pixel-perfect at the center; depth is now expressed only via opacity
-- [ ] **Portal transition around stats screen** — wrap the post-floor stats modal in a swirling purple portal effect (rotating concentric rings / glow / wisps) so the player feels like they're standing *inside* the portal while reading their stats. Also do a quick fade-out of the previous floor into that portal view, and a quick fade from the portal into the next floor as they continue. Fast but recognizable beats — sells the "you stepped through it" fantasy.
+- [x] **Portal transition around stats screen** — stats modal is now wrapped in two counter-rotating conic-gradient purple swirls over a radial-gradient void backdrop, with a radial deep-purple haze instead of a flat black overlay. Open: portal fades in (0.28s) then stats pop in. Close: stats shrink-and-fade (0.22s) while the portal keeps swirling, then the whole portal dissolves (0.36s) as the next floor builds underneath.
 - [ ] **More legible cursor** — current custom cursor renders dark against the mostly-black UI and is often hard to spot; needs a higher-contrast or outlined version
 - [ ] **Powerful blast SFX** — the BLAST attack currently plays the death/game-over sound; needs its own dedicated, weighty explosion sound
 
