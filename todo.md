@@ -34,6 +34,7 @@ feels too generous.
 - [x] **Floor-cleared chime** — small triumphant tone when the last monster on a floor dies (skipped on boss kills since bossVictory already plays)
 - [x] **Boss-floor stats screen variant** — post-floor stats modal now switches to gold/yellow accents with a "Boss Defeated · Wing N" header when the cleared floor was a boss floor
 - [ ] **Death-screen replay polish** — play a small "ding" as each completed floor pops into the stacked pullback view
+- [ ] **Death-screen replay timing** — each map should "fall in" / appear progressively, with the cadence ramping down in speed (start fast, ease into slower) so the rhythm matches each "ding"
 - [ ] **Death-screen replay layout** — stack the completed-floor snapshots cleanly: drop the per-floor rotation and normalize cell scale so they sit neatly on top of each other (more layered upgrades possible later)
 - [ ] **More legible cursor** — current custom cursor renders dark against the mostly-black UI and is often hard to spot; needs a higher-contrast or outlined version
 - [ ] **Powerful blast SFX** — the BLAST attack currently plays the death/game-over sound; needs its own dedicated, weighty explosion sound

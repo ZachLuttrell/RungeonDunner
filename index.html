@@ -2440,6 +2440,52 @@ function spawnSlash(fromX, fromY, toX, toY, color='#ffeebb', isCrit=false){
   setTimeout(()=>slash.remove(), isCrit?400:320);
 }
 
+// Player swings their current weapon icon in a tight arc toward the target,
+// like the player's hand drove the blade through. Used for melee hits.
+function spawnMeleeSwing(playerX, playerY, targetX, targetY, glyph, color, isCrit){
+  const wrap=document.getElementById('grid-wrap');
+  if(!wrap) return;
+  const from=cellPx(playerX,playerY);
+  const to=cellPx(targetX,targetY);
+  const baseAngle=Math.atan2(to.y-from.y, to.x-from.x);
+  // Sweep ±60° around the base angle (120° total arc) — wide enough to read
+  // as a swing but tight enough to feel snappy.
+  const halfArc=Math.PI/3;
+  const startAngle=baseAngle-halfArc;
+  const endAngle=baseAngle+halfArc;
+  const reach=isCrit?32:26; // px from player center
+  const size=isCrit?28:22;
+  const el=document.createElement('div');
+  el.className='fx-meleeswing'+(isCrit?' crit':'');
+  el.textContent=glyph||'⚔';
+  el.style.cssText=`
+    position:absolute;
+    left:${from.x}px;top:${from.y}px;
+    margin-left:${-size/2}px;margin-top:${-size/2}px;
+    width:${size}px;height:${size}px;
+    font-size:${size}px;line-height:${size}px;text-align:center;
+    color:${color||'#fff'};
+    text-shadow:0 0 10px ${color||'#fff'},0 0 22px ${color||'#fff'};
+    pointer-events:none;z-index:51;
+    will-change:transform,opacity;
+  `;
+  wrap.appendChild(el);
+  const dur=isCrit?260:190;
+  const start=performance.now();
+  function tick(now){
+    const raw=Math.min(1,(now-start)/dur);
+    const eased=1-(1-raw)*(1-raw); // ease-out quad — fast then slow
+    const angle=startAngle+(endAngle-startAngle)*eased;
+    // Pre-rotate the glyph by +45° so common dagger/sword emojis (which
+    // point to the upper-right by default) align tangent to the arc.
+    el.style.transform=`translate(${Math.cos(angle)*reach}px,${Math.sin(angle)*reach}px) rotate(${angle+Math.PI/4}rad)`;
+    el.style.opacity=raw<0.6?1:Math.max(0,1-(raw-0.6)/0.4);
+    if(raw<1) requestAnimationFrame(tick);
+    else el.remove();
+  }
+  requestAnimationFrame(tick);
+}
+
 // Flying projectile from one tile to another. Calls opts.onImpact when it lands.
 function spawnProjectile(fromX, fromY, toX, toY, opts={}){
   const wrap=document.getElementById('grid-wrap');
@@ -2908,6 +2954,11 @@ function playerCombat(m){
   // Slash arc from player to target
   const slashColor=isCrit?'#ffeebb':streakTier()>=2?'#ff8855':w.col||'#ffffff';
   spawnSlash(player.x,player.y,m.x,m.y,slashColor,isCrit);
+  // Weapon swing — the current weapon's glyph arcs toward the target like
+  // the player swung it. First space-delimited token of the weapon name is
+  // the emoji (e.g. "⚔ Iron Sword" -> "⚔").
+  const swingColor=isCrit?'#ffeebb':w.col||'#ffffff';
+  spawnMeleeSwing(player.x,player.y,m.x,m.y,(w.name||'').split(' ')[0],swingColor,isCrit);
   spawnParticles(m.x,m.y,isCrit?'#f1c40f':'#e74c3c',isCrit?16:8);
   if(isCrit) spawnCritImpact(m.x,m.y);
   const breakdown=isCrit?`💥×2.2=${dmgOut}`:isStunBonus?`⚡×1.5=${dmgOut}`:`⚔${eAtk()+streakBonusAtk()}−def=${dmgOut}`;
