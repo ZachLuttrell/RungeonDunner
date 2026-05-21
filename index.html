@@ -367,6 +367,9 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 #stats-modal.boss .st-row .st-v{color:#f9e08a;}
 #stats-modal.boss #stats-close{border-color:#a07a00;color:#f1c40f;}
 #stats-modal.boss #stats-close:hover{background:#1a1400;border-color:#f1c40f;box-shadow:0 0 18px rgba(241,196,15,0.4);}
+/* Swap the slower swirl to gold on boss floors so the portal mixes
+   purple + gold while keeping the primary purple swirl. */
+#stats-modal.boss::after{background:conic-gradient(from 180deg,transparent 0%,rgba(241,196,15,0.14) 22%,transparent 44%,rgba(255,215,90,0.12) 66%,transparent 88%);}
 
 /* OVERLAY */
 #overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;z-index:400;backdrop-filter:blur(5px);}
