@@ -2880,6 +2880,7 @@ function tryMove(dx,dy){
       const msgs=isDecayed?goldDecayedMsgs:goldFlavorMsgs;
       log(msgs[rng(0,msgs.length-1)],isDecayed?'info':'warn');
       flash('gold',120);SFX.gold();
+      pulseStat('s-gold');
     }
     else if(item.type==='potion'){const h=Math.min(item.val,player.maxhp-player.hp);player.hp+=h;spawnParticles(nx,ny,'#2ecc71',6);spawnDmg(nx,ny,`+${h}HP`,'#2ecc71');log(`Restoration vial. +${h} HP.`,'good');SFX.potion();}
     else if(item.type==='elixir'){const h=Math.min(item.val,player.maxhp-player.hp);player.hp+=h;player.maxhp++;spawnParticles(nx,ny,'#9b59b6',12);spawnDmg(nx,ny,`⚗+${h}`,'#d891ff');log(`Ancient elixir. +${h} HP. Your body rewrites itself.`,'mega');SFX.potion();}
@@ -2896,6 +2897,7 @@ function tryMove(dx,dy){
         spawnDmg(nx,ny+0.4,`${sp.icon} FULL`,'#d891ff');
         log(`📜 Duplicate scroll. +${bonus} shards · ${sp.name} fully charged.`,'mega');
         flash('gold',300);SFX.weapon();
+        pulseStat('s-gold');
       } else {
         spellUnlocked[item.spellIdx]=true;
         // Arcane Affinity: gift starting pips to newly unlocked spell
@@ -3077,6 +3079,7 @@ function killMonster(m){
   const drop=rng(m.isBoss?10:1,m.isBoss?22:3+floor);
   player.gold+=drop;kills++;combo++;
   if(floorStats)floorStats.kills++;
+  pulseStat('s-gold');
   clearTimeout(comboTimer);comboTimer=setTimeout(()=>{combo=0;showCombo(0);},4000);
   showCombo(combo);
   if(combo>=2)SFX.combo(combo);
