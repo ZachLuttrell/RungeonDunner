@@ -121,8 +121,8 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .stat-block .lbl{font-size:8px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;}
 .stat-block .val{font-size:17px;font-weight:bold;}
 .val.gc{color:#f1c40f;}.val.rc{color:#e74c3c;}.val.cc{color:#00bcd4;}.val.pc{color:#9b59b6;}
-@keyframes statPulse{0%{transform:scale(1);text-shadow:0 0 0 transparent;}30%{transform:scale(1.45);text-shadow:0 0 16px currentColor,0 0 32px currentColor;}100%{transform:scale(1);text-shadow:0 0 0 transparent;}}
-.stat-pulse{animation:statPulse 0.55s cubic-bezier(0.34,1.56,0.64,1);display:inline-block;}
+@keyframes statPulse{0%{transform:scale(1);text-shadow:0 0 0 transparent;}25%{transform:scale(2.1);text-shadow:0 0 28px currentColor,0 0 56px currentColor,0 0 88px currentColor;}55%{transform:scale(1.35);text-shadow:0 0 18px currentColor,0 0 36px currentColor;}100%{transform:scale(1);text-shadow:0 0 0 transparent;}}
+.stat-pulse{animation:statPulse 0.9s cubic-bezier(0.34,1.56,0.64,1);display:inline-block;}
 
 #hp-wrap{background:var(--surface);border:1px solid #2a0040;border-radius:3px;padding:3px 8px;margin-bottom:2px;}
 #hp-top{display:flex;justify-content:space-between;font-size:8px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
@@ -281,6 +281,8 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 @keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--px),var(--py)) scale(0)}}
 .dmg-float{position:absolute;font-size:14px;font-weight:bold;font-family:'Share Tech Mono',monospace;pointer-events:none;z-index:500;white-space:nowrap;animation:floatUp 1s ease-out forwards;}
 @keyframes floatUp{0%{opacity:1;transform:translate(-50%,0) scale(1.3)}100%{opacity:0;transform:translate(-50%,-52px) scale(0.7)}}
+.dmg-float.upgrade-pop{font-size:24px;letter-spacing:1.5px;animation:upgradePop 1.6s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+@keyframes upgradePop{0%{opacity:0;transform:translate(-50%,12px) scale(0.35)}12%{opacity:1;transform:translate(-50%,-4px) scale(1.85)}30%{transform:translate(-50%,-10px) scale(1.45)}60%{transform:translate(-50%,-40px) scale(1.25)}100%{opacity:0;transform:translate(-50%,-90px) scale(1)}}
 
 /* KILL FEED */
 #kill-feed{position:fixed;top:10px;right:10px;z-index:200;display:flex;flex-direction:column;gap:4px;pointer-events:none;width:190px;}
@@ -3252,7 +3254,18 @@ function pulseStat(elementId){
   el.classList.remove('stat-pulse');
   void el.offsetWidth; // restart animation if already triggered
   el.classList.add('stat-pulse');
-  setTimeout(()=>el.classList.remove('stat-pulse'),600);
+  setTimeout(()=>el.classList.remove('stat-pulse'),950);
+}
+
+function spawnUpgradeFloat(x,y,text,color){
+  const wrap=document.getElementById('grid-wrap');
+  const {x:px,y:py}=cellPx(x,y);
+  const el=document.createElement('div');
+  el.className='dmg-float upgrade-pop';
+  el.textContent=text;
+  el.style.cssText=`left:${px}px;top:${py}px;color:${color};text-shadow:0 0 20px ${color},0 0 40px ${color},0 0 70px ${color};`;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(),1650);
 }
 
 function buyItem(item){
@@ -3261,35 +3274,45 @@ function buyItem(item){
   let isUpgrade=false;
   if(item.fn==='heal'){
     const h=Math.min(item.val,player.maxhp-player.hp);player.hp+=h;
-    spawnDmg(player.x,player.y,`+${h}HP`,'#2ecc71');log(`+${h} HP restored.`,'good');
+    spawnUpgradeFloat(player.x,player.y,`+${h} HP`,'#2ecc71');log(`+${h} HP restored.`,'good');
     pulseStat('hp-text');
+    spawnParticles(player.x,player.y,'#2ecc71',16,5);
   }
   else if(item.fn==='atk'){
     player.atk+=item.val;log(`ATK +${item.val}!`,'mega');
-    spawnDmg(player.x,player.y,`+${item.val} ATK`,'#ff6633');
+    spawnUpgradeFloat(player.x,player.y,`+${item.val} ATK`,'#ff6633');
     pulseStat('s-atk');isUpgrade=true;
+    spawnParticles(player.x,player.y,'#ff6633',22,6);
   }
   else if(item.fn==='maxhp'){
     player.maxhp+=item.val;player.hp=Math.min(player.hp+item.val,player.maxhp);log(`MaxHP +${item.val}!`,'mega');
-    spawnDmg(player.x,player.y,`+${item.val} MAX HP`,'#d891ff');
+    spawnUpgradeFloat(player.x,player.y,`+${item.val} MAX HP`,'#d891ff');
     pulseStat('hp-text');isUpgrade=true;
+    spawnParticles(player.x,player.y,'#d891ff',22,6);
   }
   else if(item.fn==='def'){
     player.def+=item.val;log(`DEF +${item.val}!`,'mega');
-    spawnDmg(player.x,player.y,`+${item.val} DEF`,'#3498db');
+    spawnUpgradeFloat(player.x,player.y,`+${item.val} DEF`,'#3498db');
     isUpgrade=true;
+    spawnParticles(player.x,player.y,'#3498db',22,6);
   }
   else if(item.fn==='fullheal'){
-    player.hp=player.maxhp;spawnDmg(player.x,player.y,'FULL RESTORE!','#d891ff');log(`Full Restore!`,'mega');
+    player.hp=player.maxhp;
+    spawnUpgradeFloat(player.x,player.y,'FULL RESTORE!','#d891ff');log(`Full Restore!`,'mega');
     pulseStat('hp-text');
+    spawnParticles(player.x,player.y,'#d891ff',28,7);
   }
   else if(item.fn==='throws'){
     throwsLeft+=item.val;log(`+${item.val} throwing daggers!`,'warn');updateRangedUI();
-    spawnDmg(player.x,player.y,`+${item.val} 🗡`,'#cccccc');
+    spawnUpgradeFloat(player.x,player.y,`+${item.val} 🗡`,'#cccccc');
     pulseStat('ranged-count');
+    spawnParticles(player.x,player.y,'#cccccc',16,5);
   }
-  flash('purple',200);SFX.buy();
-  if(isUpgrade) try{ SFX.upgrade(); }catch(e){}
+  flash('purple',isUpgrade?420:300);SFX.buy();
+  if(isUpgrade){
+    try{ SFX.upgrade(); }catch(e){}
+    shakeGame('shake');
+  }
   updateStats();closeShop();
 }
 function closeShop(){gameState='playing';document.getElementById('shop-modal').classList.add('hidden');_shopStock=[];}
