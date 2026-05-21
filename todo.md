@@ -36,6 +36,7 @@ feels too generous.
 - [ ] **Death-screen replay polish** — play a small "ding" as each completed floor pops into the stacked pullback view
 - [ ] **Death-screen replay layout** — stack the completed-floor snapshots cleanly: drop the per-floor rotation and normalize cell scale so they sit neatly on top of each other (more layered upgrades possible later)
 - [ ] **More legible cursor** — current custom cursor renders dark against the mostly-black UI and is often hard to spot; needs a higher-contrast or outlined version
+- [ ] **Powerful blast SFX** — the BLAST attack currently plays the death/game-over sound; needs its own dedicated, weighty explosion sound
 
 The post-floor stats screen tracks kills, gold, attacks, throws, spells,
 damage dealt, and damage taken. Speed bonus tiers: LIGHTNING DUNNER (<45s),
