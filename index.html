@@ -334,11 +334,13 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 #shop-close:hover{background:#150025;border-color:#d891ff;color:#d891ff;}
 
 /* POST-FLOOR STATS */
-#stats-modal{position:fixed;inset:0;background:radial-gradient(ellipse at center,rgba(38,8,60,0.92) 0%,rgba(2,0,8,0.96) 75%);display:flex;align-items:center;justify-content:center;z-index:320;backdrop-filter:blur(6px);padding:18px;cursor:pointer;overflow:hidden;}
-/* Swirling purple portal layered behind the stats modal — two
-   counter-rotating conic gradients create depth and motion. */
-#stats-modal::before{content:'';position:absolute;inset:-30%;background:conic-gradient(from 0deg,transparent 0%,rgba(155,89,182,0.22) 12%,transparent 30%,rgba(216,145,255,0.28) 50%,transparent 68%,rgba(155,89,182,0.22) 85%,transparent 100%);animation:portalSwirl 7.5s linear infinite;pointer-events:none;}
-#stats-modal::after{content:'';position:absolute;inset:-30%;background:conic-gradient(from 180deg,transparent 0%,rgba(106,42,154,0.18) 22%,transparent 44%,rgba(186,104,222,0.14) 66%,transparent 88%);animation:portalSwirl 13s linear infinite reverse;pointer-events:none;mix-blend-mode:screen;}
+#stats-modal{position:fixed;inset:0;background:radial-gradient(ellipse at center,rgba(38,8,60,0.92) 0%,rgba(2,0,8,0.96) 75%);display:flex;align-items:center;justify-content:center;z-index:320;backdrop-filter:blur(3px);padding:18px;cursor:pointer;overflow:hidden;}
+/* Swirling purple portal layered behind the stats modal. Centered and
+   masked to a soft circle so the edges fade out gracefully and we only
+   composite a contained region (much cheaper than full-viewport conic). */
+#stats-modal::before,#stats-modal::after{content:'';position:absolute;left:50%;top:50%;width:140vmin;height:140vmin;margin-left:-70vmin;margin-top:-70vmin;pointer-events:none;will-change:transform;-webkit-mask-image:radial-gradient(circle at center,#000 28%,rgba(0,0,0,0.55) 55%,transparent 78%);mask-image:radial-gradient(circle at center,#000 28%,rgba(0,0,0,0.55) 55%,transparent 78%);}
+#stats-modal::before{background:conic-gradient(from 0deg,transparent 0%,rgba(155,89,182,0.14) 12%,transparent 30%,rgba(216,145,255,0.18) 50%,transparent 68%,rgba(155,89,182,0.14) 85%,transparent 100%);animation:portalSwirl 7.5s linear infinite;}
+#stats-modal::after{background:conic-gradient(from 180deg,transparent 0%,rgba(106,42,154,0.11) 22%,transparent 44%,rgba(186,104,222,0.10) 66%,transparent 88%);animation:portalSwirl 13s linear infinite reverse;}
 @keyframes portalSwirl{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 #stats-inner{position:relative;z-index:1;background:#08000f;border:1px solid #4a0070;border-radius:5px;padding:1.4rem 1.5rem 1.2rem;max-width:330px;width:92%;max-height:calc(100dvh - 36px);max-height:calc(100vh - 36px);box-shadow:0 0 60px rgba(155,89,182,0.45),0 0 120px rgba(155,89,182,0.25);display:flex;flex-direction:column;cursor:default;animation:statsPop 0.34s ease-out;}
 @keyframes statsPop{0%{opacity:0;transform:scale(0.92)}100%{opacity:1;transform:scale(1)}}
