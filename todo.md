@@ -37,7 +37,7 @@ feels too generous.
 - [x] **Death-screen replay timing** — reveal cadence now ramps DOWN: 210ms → ×1.22 per step (capped at 720ms) so first few snaps in fast, later ones settle into a reading pace
 - [x] **Death-screen replay layout** — per-floor rotation dropped, all layers stack at the same scale so portals align pixel-perfect at the center; depth is now expressed only via opacity
 - [x] **Portal transition around stats screen** — stats modal is now wrapped in two counter-rotating conic-gradient purple swirls over a radial-gradient void backdrop, with a radial deep-purple haze instead of a flat black overlay. Open: portal fades in (0.28s) then stats pop in. Close: stats shrink-and-fade (0.22s) while the portal keeps swirling, then the whole portal dissolves (0.36s) as the next floor builds underneath.
-- [ ] **More legible cursor** — current custom cursor renders dark against the mostly-black UI and is often hard to spot; needs a higher-contrast or outlined version
+- [x] **More legible cursor** — replaced the dark 🗡 emoji cursor with a vector-drawn dagger: lavender blade with white center highlight, purple crossguard and pommel, all wrapped in a 2px black stroke outline so it stays readable on dark and light backgrounds alike. Hotspot pinned to the blade tip.
 - [x] **Powerful blast SFX** — replaced the warpOut layer in castBlast (which sounded like the death pullback) with a new dedicated SFX.blast() — sub-bass shockwave + thunderclap transient + mid crunch + debris tail
 - [x] **First-descent SFX** — new SFX.firstDescent() plays at startGame: gate-slam transient, descending whoosh, sub-bass landing, low ominous tail. Sells the "you stepped in" moment at the start of every run.
 
