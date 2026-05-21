@@ -52,6 +52,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 #game.bigshake{animation:bigshake 0.5s ease-out;}
 
 @keyframes splashPulse{0%,100%{opacity:0.5}50%{opacity:1}}
+@keyframes pullbackHintPulse{0%,100%{opacity:0.5}50%{opacity:1}}
 @keyframes fadeInTooltip{0%{opacity:0;transform:scale(0.92)}100%{opacity:1;transform:scale(1)}}
 @keyframes tooltipPulse{0%,100%{text-shadow:0 0 6px #9b59b6}50%{text-shadow:0 0 18px #d891ff,0 0 30px rgba(216,145,255,0.6)}}
 @keyframes bossRevealFade{0%{opacity:0;backdrop-filter:blur(0)}100%{opacity:1;backdrop-filter:blur(6px)}}
@@ -1031,13 +1032,21 @@ const SFX = (() => {
     },
 
     replayDing(stepIdx=0) {
-      // Brief crystalline "ding" as each completed floor pops into the
-      // death-screen replay stack. Pitch nudges up slightly per step so
-      // successive dings feel like climbing the stack.
-      const c = getCtx(), t = c.currentTime, m = master(0.34);
-      const base = 1320 + Math.min(stepIdx, 6) * 60; // E6-ish, rising
-      osc('sine', base, t, 0.06, 0.42, m, base * 0.78);
-      osc('triangle', base * 1.5, t + 0.01, 0.05, 0.22, m, base * 1.2);
+      // Crystalline ding for each floor in the death-screen pullback.
+      // Sequence pitch climbs (escaping upward, out of the dungeon) but each
+      // individual note bends DOWN in pitch so floors feel like they whoosh
+      // past you as you're sucked back out.
+      const c = getCtx(), t = c.currentTime, m = master(0.42);
+      const step = Math.min(stepIdx, 6);
+      const seqBase = 1244 + step * 75;          // climbs per step (D6+)
+      // Main ding — strong downward bend
+      osc('sine',     seqBase,        t,        0.10, 0.55, m, seqBase * 0.55);
+      // Fifth above for body
+      osc('triangle', seqBase * 1.5,  t + 0.005, 0.07, 0.32, m, seqBase * 0.7);
+      // Sub-octave hum for weight
+      osc('sine',     seqBase * 0.5,  t,        0.16, 0.24, m, seqBase * 0.38);
+      // High shimmering tail
+      osc('triangle', seqBase * 2,    t + 0.03, 0.22, 0.18, m, seqBase * 1.1);
     },
 
     throwDagger() {
@@ -3570,7 +3579,7 @@ function playPullbackAnimation(onComplete){
   // settle into a reading pace — each reveal triggers a ding for rhythm.
   const REVEAL_ORDER=layers.slice().reverse(); // newest first
   const BASE_INTERVAL=210;    // first gap
-  const GROWTH=1.22;          // per-step multiplier
+  const GROWTH=1.16;          // per-step multiplier (gentle slowdown)
   const MAX_INTERVAL=720;     // cap so very long runs don't drag forever
   const intervals=REVEAL_ORDER.map((_,i)=>
     Math.min(MAX_INTERVAL, Math.round(BASE_INTERVAL*Math.pow(GROWTH,i)))
@@ -3589,21 +3598,43 @@ function playPullbackAnimation(onComplete){
     cumulative += intervals[i];
   });
 
-  // After all revealed, hold for a moment, then fade out
+  // After all revealed, show a hint and hold on the full stack until the
+  // player presses a key or clicks. Gives breathing room (and a screenshot
+  // window) before continuing.
   const totalRevealTime = cumulative;
-  const HOLD = 1400;
+  const POST_REVEAL_BREATH = 500;
   setTimeout(()=>{
-    overlay.style.transition='opacity 0.8s ease-out';
-    overlay.style.opacity='0';
-    setTimeout(()=>{
-      // Defensive cleanup — make sure overlay is fully removed
-      try { overlay.remove(); } catch(e) {}
-      const stray=document.getElementById('pullback-overlay');
-      if(stray) stray.remove();
-      console.log('[pullback] complete, calling onComplete');
-      onComplete();
-    }, 850);
-  }, totalRevealTime + HOLD);
+    const hint=document.createElement('div');
+    hint.textContent='Press any key to continue';
+    hint.style.cssText=`
+      position:absolute;left:50%;bottom:6%;transform:translateX(-50%);
+      color:#9b59b6;font-family:'Share Tech Mono',monospace;font-size:11px;
+      letter-spacing:4px;text-transform:uppercase;
+      animation:pullbackHintPulse 1.6s ease-in-out infinite;
+      text-shadow:0 0 14px rgba(155,89,182,0.65);pointer-events:none;
+    `;
+    overlay.appendChild(hint);
+
+    let dismissed=false;
+    function dismiss(){
+      if(dismissed) return;
+      dismissed=true;
+      document.removeEventListener('keydown',dismiss);
+      overlay.removeEventListener('click',dismiss);
+      overlay.style.transition='opacity 0.8s ease-out';
+      overlay.style.opacity='0';
+      setTimeout(()=>{
+        try{ overlay.remove(); }catch(e) {}
+        const stray=document.getElementById('pullback-overlay');
+        if(stray) stray.remove();
+        console.log('[pullback] complete, calling onComplete');
+        onComplete();
+      }, 850);
+    }
+    document.addEventListener('keydown',dismiss);
+    overlay.addEventListener('click',dismiss);
+    overlay.style.cursor='pointer';
+  }, totalRevealTime + POST_REVEAL_BREATH);
 }
 function snapshotFloor(){
   const exitItem=items.find(i=>i.type==='exit');
