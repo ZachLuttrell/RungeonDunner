@@ -2470,7 +2470,7 @@ function spawnMeleeSwing(playerX, playerY, targetX, targetY, glyph, color, isCri
     will-change:transform,opacity;
   `;
   wrap.appendChild(el);
-  const dur=isCrit?260:190;
+  const dur=isCrit?340:250;
   const start=performance.now();
   function tick(now){
     const raw=Math.min(1,(now-start)/dur);
