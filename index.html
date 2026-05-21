@@ -1030,6 +1030,16 @@ const SFX = (() => {
       osc('triangle', 1175, t + 0.14, 0.18, 0.32, m, 1568); // D6 -> G6 sparkle
     },
 
+    replayDing(stepIdx=0) {
+      // Brief crystalline "ding" as each completed floor pops into the
+      // death-screen replay stack. Pitch nudges up slightly per step so
+      // successive dings feel like climbing the stack.
+      const c = getCtx(), t = c.currentTime, m = master(0.34);
+      const base = 1320 + Math.min(stepIdx, 6) * 60; // E6-ish, rising
+      osc('sine', base, t, 0.06, 0.42, m, base * 0.78);
+      osc('triangle', base * 1.5, t + 0.01, 0.05, 0.22, m, base * 1.2);
+    },
+
     throwDagger() {
       // Quick aerodynamic whoosh — the dagger leaving the hand
       const c = getCtx(), t = c.currentTime, m = master(0.32);
@@ -3524,10 +3534,8 @@ function playPullbackAnimation(onComplete){
     const portalX=PAD+snap.exitX*CW+CW/2;
     const portalY=PAD+snap.exitY*CW+CW/2;
 
-    // Subtle tilt per layer for that "stacked glass plates" feeling
-    // Alternate direction slightly
-    const tiltAngle = depthFromTop * 1.4 * (depthFromTop%2===0?1:-1); // degrees
-
+    // All layers stack at the same scale with no rotation so their portals
+    // align pixel-perfect at the center; depth is conveyed only by opacity.
     wrap.style.cssText=`
       position:absolute;
       left:${-portalX}px;
@@ -3535,9 +3543,9 @@ function playPullbackAnimation(onComplete){
       width:${sw}px;
       height:${sh}px;
       transform-origin:${portalX}px ${portalY}px;
-      transform:scale(${1-depthFromTop*0.05}) rotate(${tiltAngle}deg);
+      transform:scale(1);
       opacity:0;
-      transition:opacity 0.6s ease-out, transform 0.6s ease-out;
+      transition:opacity 0.45s ease-out;
       pointer-events:none;
     `;
     wrap.appendChild(snap.canvas);
@@ -3557,22 +3565,32 @@ function playPullbackAnimation(onComplete){
     layers.push({wrap, label, depthFromTop, isNewest});
   });
 
-  // Reveal newest first, then progressively reveal older ones underneath
-  // (feels like the camera is pulling back and revealing the stack of floors below)
-  const REVEAL_INTERVAL=600;
+  // Reveal newest first, then progressively reveal older ones underneath.
+  // Cadence ramps DOWN in speed: first few reveals snap fast, later ones
+  // settle into a reading pace — each reveal triggers a ding for rhythm.
   const REVEAL_ORDER=layers.slice().reverse(); // newest first
+  const BASE_INTERVAL=210;    // first gap
+  const GROWTH=1.22;          // per-step multiplier
+  const MAX_INTERVAL=720;     // cap so very long runs don't drag forever
+  const intervals=REVEAL_ORDER.map((_,i)=>
+    Math.min(MAX_INTERVAL, Math.round(BASE_INTERVAL*Math.pow(GROWTH,i)))
+  );
 
+  let cumulative=0;
   REVEAL_ORDER.forEach((layer,i)=>{
+    const at=cumulative;
     setTimeout(()=>{
       // Older layers: more transparent, but still readable
       const baseOp = layer.isNewest ? 1 : Math.max(0.45, 0.85 - layer.depthFromTop*0.10);
       layer.wrap.style.opacity = baseOp.toFixed(2);
       layer.label.style.opacity = (0.9 - layer.depthFromTop*0.08).toFixed(2);
-    }, i*REVEAL_INTERVAL);
+      try{ SFX.replayDing(i); }catch(e){}
+    }, at);
+    cumulative += intervals[i];
   });
 
   // After all revealed, hold for a moment, then fade out
-  const totalRevealTime = layers.length * REVEAL_INTERVAL;
+  const totalRevealTime = cumulative;
   const HOLD = 1400;
   setTimeout(()=>{
     overlay.style.transition='opacity 0.8s ease-out';

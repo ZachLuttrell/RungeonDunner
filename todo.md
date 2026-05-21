@@ -33,9 +33,9 @@ feels too generous.
 - [x] **Better throwing-knife sound + visualization** — daggers now visually fly from the player to the target (rotating to face direction, spinning during flight) with a new aerodynamic whoosh on release and a sharp thwack on impact
 - [x] **Floor-cleared chime** — small triumphant tone when the last monster on a floor dies (skipped on boss kills since bossVictory already plays)
 - [x] **Boss-floor stats screen variant** — post-floor stats modal now switches to gold/yellow accents with a "Boss Defeated · Wing N" header when the cleared floor was a boss floor
-- [ ] **Death-screen replay polish** — play a small "ding" as each completed floor pops into the stacked pullback view
-- [ ] **Death-screen replay timing** — each map should "fall in" / appear progressively, with the cadence ramping down in speed (start fast, ease into slower) so the rhythm matches each "ding"
-- [ ] **Death-screen replay layout** — stack the completed-floor snapshots cleanly: drop the per-floor rotation and normalize cell scale so they sit neatly on top of each other (more layered upgrades possible later)
+- [x] **Death-screen replay polish** — small crystalline "ding" plays as each completed floor pops into the stacked pullback view (pitch climbs slightly per step)
+- [x] **Death-screen replay timing** — reveal cadence now ramps DOWN: 210ms → ×1.22 per step (capped at 720ms) so first few snaps in fast, later ones settle into a reading pace
+- [x] **Death-screen replay layout** — per-floor rotation dropped, all layers stack at the same scale so portals align pixel-perfect at the center; depth is now expressed only via opacity
 - [ ] **Portal transition around stats screen** — wrap the post-floor stats modal in a swirling purple portal effect (rotating concentric rings / glow / wisps) so the player feels like they're standing *inside* the portal while reading their stats. Also do a quick fade-out of the previous floor into that portal view, and a quick fade from the portal into the next floor as they continue. Fast but recognizable beats — sells the "you stepped through it" fantasy.
 - [ ] **More legible cursor** — current custom cursor renders dark against the mostly-black UI and is often hard to spot; needs a higher-contrast or outlined version
 - [ ] **Powerful blast SFX** — the BLAST attack currently plays the death/game-over sound; needs its own dedicated, weighty explosion sound
