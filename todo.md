@@ -100,6 +100,7 @@ like first-class loot instead of silent stat boosts.
 - [x] **Randomize floor lengths** — themes now group into blocks of 3–5 floors (2–4 normal + 1 boss at the end), so music gets breathing room and boss floors close out a theme
 - [ ] **Larger maps** the deeper you go
 - [ ] New **mega-boss tier** introduced ~3rd boss stage
+- [ ] **Mega-boss tactical design** — current bosses are "harder basic mobs" and that's fine for them, the player can blast + knife them down even at higher floors. Mega-bosses should be a different category: smart enough (in their own behavior, and in what they force the player to do) that the player has to use their full spell kit creatively and tactically to win. Both sides of the fight need more brains. Vague but the direction is "puzzle-fight, not bigger HP bar."
 - [ ] Mega-boss floors on bigger maps with castle aesthetics
 - [ ] *Revisit later:* tune the theme-block range (currently 3–5). 2–4 or 3–6 are easy alternatives if pacing feels off after more content lands.
 - [ ] *Revisit later:* consider surfacing block progress in the UI ("Wing 2 of 4 · Catacombs") — keeps the boss arrival a surprise vs. lets the player anticipate the climax. Worth a separate playtest pass.
