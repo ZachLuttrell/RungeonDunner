@@ -609,6 +609,23 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 *{-webkit-tap-highlight-color:transparent;}
 button{touch-action:manipulation;}
 
+/* ===== MOBILE PERF PASS =====
+   Phone-sized screens cut the heaviest constant-cost effects: each wall
+   cell's infinite rune-glow animation (~80 per floor), backdrop-filter
+   blur on most modals, and the constant HP-bar shimmer. The visual loss
+   is minor; the frame-rate gain on a phone is significant. */
+@media (max-width: 720px) {
+  .cell.wall::after { animation: none !important; opacity: 0.22; }
+  #shop-modal,
+  #overlay,
+  #weapon-unlock-card,
+  #ability-unlock-tooltip,
+  #boss-reveal-card,
+  #meta-modal { backdrop-filter: none !important; }
+  #stats-modal { backdrop-filter: blur(2px); }
+  #hp-fill::after { animation: none !important; opacity: 0; }
+}
+
 </style>
 </head>
 <body>
@@ -2492,7 +2509,11 @@ function killFeed(msg,cls=''){
   const e=document.createElement('div');e.className='kf-entry'+(cls?' '+cls:'');e.textContent=msg;
   feed.appendChild(e);setTimeout(()=>e.remove(),3600);
 }
+// Cached once at load; phones rarely cross the breakpoint mid-run.
+const _IS_PHONE = window.matchMedia('(max-width: 720px)').matches;
 function spawnParticles(x,y,color,count=8,sz=5){
+  // Mobile perf: roughly two-thirds the particle count on phones.
+  if(_IS_PHONE) count = Math.max(2, Math.round(count * 0.6));
   const wrap=document.getElementById('particles');
   const {x:px,y:py}=cellPx(x,y);
   for(let i=0;i<count;i++){

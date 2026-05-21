@@ -52,6 +52,7 @@ feels too generous.
 - [x] **Wing counter pulse on floor change** — pulses s-floor at the end of nextFloor so the new wing number pops as the portal dissolves
 - [x] **Floating gold drop text on kill drops** — killMonster now spawns a "+N🪙" floating text at the dying enemy's tile alongside the particles and counter pulse
 - [x] **Boss reveal card flavor pass** — on closer inspection the existing card is already polished (pulsing warning banner, big portrait drop-shadow, themed stats, threat stars). Made one small tweak: the subtitle now reads "— DUNGEON GUARDIAN · WING N —" using the current theme name instead of a generic "WING N GUARDIAN".
+- [x] **Mobile perf pass v1** — `@media (max-width:720px)` block disables the per-wall-cell rune-glow animation (kept visible but static), drops `backdrop-filter` on shop / overlay / weapon-unlock / ability-tooltip / boss-reveal / meta modals, lowers it to 2px on the stats portal, and disables the HP-bar shimmer. JS-side, spawnParticles caches a phone-breakpoint check at load and scales particle counts to ~60% on phones. Reversible per-rule if any tradeoff feels wrong.
 
 Speed-bonus tiers are computed against a per-floor par time (≈
 5s + mapArea/70 + enemies×1.8 + boss×10). LIGHTNING DUNNER fires under
