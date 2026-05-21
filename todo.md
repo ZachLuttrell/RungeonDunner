@@ -29,6 +29,7 @@ feels too generous.
 - [x] **Post-floor stats screen** (kills, gold, time, damage dealt/taken) + time-based bonus
 - [x] **One-tap continue** between floors
 - [ ] **Store purchase feedback** — animated stat-number tick-up when a stat increases, plus an "upgrade" sound effect
+- [ ] **Better melee sounds** — current melee SFX feels thin; want more weight and variety on hits, crits, and weapon types
 
 The post-floor stats screen tracks kills, gold, attacks, throws, spells,
 damage dealt, and damage taken. Speed bonus tiers: LIGHTNING DUNNER (<45s),
