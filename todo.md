@@ -35,6 +35,7 @@ feels too generous.
 - [ ] **Boss-floor stats screen variant** — color the post-floor stats modal yellow (or another distinct accent) when the cleared floor was a boss floor, to set the climax apart
 - [ ] **Death-screen replay polish** — play a small "ding" as each completed floor pops into the stacked pullback view
 - [ ] **Death-screen replay layout** — stack the completed-floor snapshots cleanly: drop the per-floor rotation and normalize cell scale so they sit neatly on top of each other (more layered upgrades possible later)
+- [ ] **More legible cursor** — current custom cursor renders dark against the mostly-black UI and is often hard to spot; needs a higher-contrast or outlined version
 
 The post-floor stats screen tracks kills, gold, attacks, throws, spells,
 damage dealt, and damage taken. Speed bonus tiers: LIGHTNING DUNNER (<45s),
