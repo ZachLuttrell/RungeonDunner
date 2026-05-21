@@ -31,8 +31,8 @@ feels too generous.
 - [x] **Store purchase feedback** — animated stat-number tick-up when a stat increases, plus an "upgrade" sound effect
 - [ ] **Better melee sounds** — current melee SFX feels thin; want more weight and variety on hits, crits, and weapon types
 - [ ] **Better throwing-knife sound + visualization** — a projectile that visibly flies from the player into the target and impacts, with a punchier SFX
-- [ ] **Floor-cleared chime** — small triumphant tone when the last monster on a floor dies
-- [ ] **Boss-floor stats screen variant** — color the post-floor stats modal yellow (or another distinct accent) when the cleared floor was a boss floor, to set the climax apart
+- [x] **Floor-cleared chime** — small triumphant tone when the last monster on a floor dies (skipped on boss kills since bossVictory already plays)
+- [x] **Boss-floor stats screen variant** — post-floor stats modal now switches to gold/yellow accents with a "Boss Defeated · Wing N" header when the cleared floor was a boss floor
 - [ ] **Death-screen replay polish** — play a small "ding" as each completed floor pops into the stacked pullback view
 - [ ] **Death-screen replay layout** — stack the completed-floor snapshots cleanly: drop the per-floor rotation and normalize cell scale so they sit neatly on top of each other (more layered upgrades possible later)
 - [ ] **More legible cursor** — current custom cursor renders dark against the mostly-black UI and is often hard to spot; needs a higher-contrast or outlined version
