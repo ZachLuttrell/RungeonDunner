@@ -46,12 +46,12 @@ feels too generous.
 - [x] **Powerful blast SFX** — replaced the warpOut layer in castBlast (which sounded like the death pullback) with a new dedicated SFX.blast() — sub-bass shockwave + thunderclap transient + mid crunch + debris tail
 - [x] **First-descent SFX** — new SFX.firstDescent() plays at startGame: gate-slam transient, descending whoosh, sub-bass landing, low ominous tail. Sells the "you stepped in" moment at the start of every run.
 - [x] **Gold counter pulse on gain** — every gold pickup, kill drop, and duplicate-scroll bonus now pulses the HUD gold value with the same scale-and-glow animation used by shop upgrades
-- [ ] **HP counter pulse on heal/damage** — mirror the gold pulse pattern: green pulse on heals (potion/elixir/full restore/Q-restore), red pulse on damage taken. Currently the HP number changes silently under the existing flash/shake.
-- [ ] **Kills counter pulse on kill** — same dopamine pattern as gold; counter pops on every kill including kill drops in killMonster
-- [ ] **ATK counter pulse on streak tier change** — when entering Blood Frenzy / Bloodlust / BERSERKER / GODSLAYER, the displayed ATK jumps but does so silently; pulse the value to celebrate the audio escalation we already ship
-- [ ] **Wing counter pulse on floor change** — small floor-number pop in the HUD when entering a new wing (subtle marker even though the stats-screen-to-portal transition already heralds it)
-- [ ] **Floating gold drop text on kill drops** — currently kill drops add gold silently (just particles + counter pulse). A "+N 🪙" floating from the dying enemy would visualize the drop and complete the loop
-- [ ] **Boss reveal card visual refresh** — the existing boss reveal card predates the new card patterns (weapon card, ability tooltip). Bring it up to the new fidelity: themed border glow, bigger glyph, dramatic stat block
+- [x] **HP counter pulse on heal/damage** — green `stat-pulse-good` pulse on heals (potion/elixir/full restore/Q-restore/between-floor/boss-kill heal/store heals), red `stat-pulse-bad` pulse on damage taken (monster hits, burn/poison ticks, lava/trap hazards, blast self-cost). pulseStat now accepts a 'good' or 'bad' variant for color-coded glows.
+- [x] **Kills counter pulse on kill** — added pulseStat('s-kills') to killMonster alongside the existing gold pulse
+- [x] **ATK counter pulse on streak tier change** — pulses on each streak threshold (2/4/6/8) to celebrate the new tier alongside the audio escalation
+- [x] **Wing counter pulse on floor change** — pulses s-floor at the end of nextFloor so the new wing number pops as the portal dissolves
+- [x] **Floating gold drop text on kill drops** — killMonster now spawns a "+N🪙" floating text at the dying enemy's tile alongside the particles and counter pulse
+- [x] **Boss reveal card flavor pass** — on closer inspection the existing card is already polished (pulsing warning banner, big portrait drop-shadow, themed stats, threat stars). Made one small tweak: the subtitle now reads "— DUNGEON GUARDIAN · WING N —" using the current theme name instead of a generic "WING N GUARDIAN".
 
 Speed-bonus tiers are computed against a per-floor par time (≈
 5s + mapArea/70 + enemies×1.8 + boss×10). LIGHTNING DUNNER fires under

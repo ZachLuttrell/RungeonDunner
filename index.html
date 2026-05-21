@@ -126,6 +126,10 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .val.gc{color:#f1c40f;}.val.rc{color:#e74c3c;}.val.cc{color:#00bcd4;}.val.pc{color:#9b59b6;}
 @keyframes statPulse{0%{transform:scale(1);text-shadow:0 0 0 transparent;}25%{transform:scale(2.1);text-shadow:0 0 28px currentColor,0 0 56px currentColor,0 0 88px currentColor;}55%{transform:scale(1.35);text-shadow:0 0 18px currentColor,0 0 36px currentColor;}100%{transform:scale(1);text-shadow:0 0 0 transparent;}}
 .stat-pulse{animation:statPulse 0.9s cubic-bezier(0.34,1.56,0.64,1);display:inline-block;}
+@keyframes statPulseGood{0%{transform:scale(1);color:inherit;text-shadow:0 0 0 transparent;}25%{transform:scale(2.1);color:#2ecc71;text-shadow:0 0 28px #2ecc71,0 0 56px #2ecc71,0 0 88px #2ecc71;}55%{transform:scale(1.35);color:#2ecc71;text-shadow:0 0 18px #2ecc71,0 0 36px #2ecc71;}100%{transform:scale(1);color:inherit;text-shadow:0 0 0 transparent;}}
+@keyframes statPulseBad{0%{transform:scale(1);color:inherit;text-shadow:0 0 0 transparent;}25%{transform:scale(2.1);color:#ff4757;text-shadow:0 0 28px #ff4757,0 0 56px #ff4757,0 0 88px #ff4757;}55%{transform:scale(1.35);color:#ff4757;text-shadow:0 0 18px #ff4757,0 0 36px #ff4757;}100%{transform:scale(1);color:inherit;text-shadow:0 0 0 transparent;}}
+.stat-pulse-good{animation:statPulseGood 0.9s cubic-bezier(0.34,1.56,0.64,1);display:inline-block;}
+.stat-pulse-bad{animation:statPulseBad 0.9s cubic-bezier(0.34,1.56,0.64,1);display:inline-block;}
 
 #hp-wrap{background:var(--surface);border:1px solid #2a0040;border-radius:3px;padding:3px 8px;margin-bottom:2px;}
 #hp-top{display:flex;justify-content:space-between;font-size:8px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
@@ -1961,6 +1965,7 @@ function monsterAttack(m){
   }
   player.hp-=dmgIn;
   if(floorStats)floorStats.damageTaken+=dmgIn;
+  pulseStat('hp-text','bad');
   _tookDamageThisTurn=true;
   if(meleeStreak>0){ log(`💔 Frenzy broken! (was ${meleeStreak} hits)`,'info'); breakStreak(); }
   tickChargesOnDamage(); // Freeze charges on taking damage
@@ -2797,8 +2802,8 @@ function throwDagger(m){
 
 /* ===== MOVEMENT ===== */
 function tickStatusPlayer(){
-  if(statusEffects.burn>0){const d=rng(1,3);player.hp-=d;if(floorStats)floorStats.damageTaken+=d;statusEffects.burn--;spawnDmg(player.x,player.y,`🔥-${d}`,'#e74c3c');log(`Burning! -${d} HP`,'bad');SFX.burn();if(player.hp<=0){renderGrid();updateStats();gameOver();return false;}}
-  if(statusEffects.poison>0){player.hp-=1;if(floorStats)floorStats.damageTaken+=1;statusEffects.poison--;spawnDmg(player.x,player.y,`☠-1`,'#2ecc71');log(`Poisoned! -1 HP`,'bad');SFX.poison();if(player.hp<=0){renderGrid();updateStats();gameOver();return false;}}
+  if(statusEffects.burn>0){const d=rng(1,3);player.hp-=d;if(floorStats)floorStats.damageTaken+=d;pulseStat('hp-text','bad');statusEffects.burn--;spawnDmg(player.x,player.y,`🔥-${d}`,'#e74c3c');log(`Burning! -${d} HP`,'bad');SFX.burn();if(player.hp<=0){renderGrid();updateStats();gameOver();return false;}}
+  if(statusEffects.poison>0){player.hp-=1;if(floorStats)floorStats.damageTaken+=1;pulseStat('hp-text','bad');statusEffects.poison--;spawnDmg(player.x,player.y,`☠-1`,'#2ecc71');log(`Poisoned! -1 HP`,'bad');SFX.poison();if(player.hp<=0){renderGrid();updateStats();gameOver();return false;}}
   if(statusEffects.shield>0)statusEffects.shield--;
   return true;
 }
@@ -2844,13 +2849,13 @@ function tryMove(dx,dy){
   const hz=hazards.find(h=>h.x===nx&&h.y===ny);
   if(hz){
     if(hz.type==='lava'){
-      const d=rng(3,6+floor);player.hp-=d;if(floorStats)floorStats.damageTaken+=d;
+      const d=rng(3,6+floor);player.hp-=d;if(floorStats)floorStats.damageTaken+=d;pulseStat('hp-text','bad');
       spawnDmg(nx,ny,`🌋-${d}`,'#ff3300');spawnParticles(nx,ny,'#ff3300',10);
       log(`🌋 LAVA! -${d} HP!`,'bad');flash('red',300);SFX.burn();
       if(player.hp<=0){updateFog();renderGrid();updateStats();gameOver();return;}
     } else if(hz.type==='trap'&&hz.armed){
       hz.armed=false;
-      const d=rng(2,4+floor);player.hp-=d;if(floorStats)floorStats.damageTaken+=d;
+      const d=rng(2,4+floor);player.hp-=d;if(floorStats)floorStats.damageTaken+=d;pulseStat('hp-text','bad');
       spawnDmg(nx,ny,`⚠-${d}`,'#e74c3c');spawnParticles(nx,ny,'#e74c3c',8);
       log(`⚠ TRAP! -${d} HP!`,'bad');flash('red',200);SFX.playerHit();
       if(player.hp<=0){updateFog();renderGrid();updateStats();gameOver();return;}
@@ -2882,8 +2887,8 @@ function tryMove(dx,dy){
       flash('gold',120);SFX.gold();
       pulseStat('s-gold');
     }
-    else if(item.type==='potion'){const h=Math.min(item.val,player.maxhp-player.hp);player.hp+=h;spawnParticles(nx,ny,'#2ecc71',6);spawnDmg(nx,ny,`+${h}HP`,'#2ecc71');log(`Restoration vial. +${h} HP.`,'good');SFX.potion();}
-    else if(item.type==='elixir'){const h=Math.min(item.val,player.maxhp-player.hp);player.hp+=h;player.maxhp++;spawnParticles(nx,ny,'#9b59b6',12);spawnDmg(nx,ny,`⚗+${h}`,'#d891ff');log(`Ancient elixir. +${h} HP. Your body rewrites itself.`,'mega');SFX.potion();}
+    else if(item.type==='potion'){const h=Math.min(item.val,player.maxhp-player.hp);player.hp+=h;spawnParticles(nx,ny,'#2ecc71',6);spawnDmg(nx,ny,`+${h}HP`,'#2ecc71');log(`Restoration vial. +${h} HP.`,'good');SFX.potion();pulseStat('hp-text','good');}
+    else if(item.type==='elixir'){const h=Math.min(item.val,player.maxhp-player.hp);player.hp+=h;player.maxhp++;spawnParticles(nx,ny,'#9b59b6',12);spawnDmg(nx,ny,`⚗+${h}`,'#d891ff');log(`Ancient elixir. +${h} HP. Your body rewrites itself.`,'mega');SFX.potion();pulseStat('hp-text','good');}
     else if(item.type==='weapon'){pickupWeapon(item.wIdx);items.splice(ii,1);doEndOfTurn();return;}
     else if(item.type==='scroll'){
       const sp=SPELLS[item.spellIdx];
@@ -3024,10 +3029,13 @@ function onMeleeHit(){
   updateStatus();
   updateDangerVignette();
   const tier=streakTier();
+  // Tier-up thresholds — pulse the ATK counter to celebrate the new bonus
+  const tierUp = meleeStreak===2 || meleeStreak===4 || meleeStreak===6 || meleeStreak===8;
   if(tier>=1 && meleeStreak===2) log(`🔥 ${streakLabel()}! ATK+${streakBonusAtk()} CRIT+${Math.round(streakBonusCrit()*100)}%`,'crit');
   else if(tier>=2 && meleeStreak===4) log(`🔥🔥 ${streakLabel()}! ATK+${streakBonusAtk()} CRIT+${Math.round(streakBonusCrit()*100)}%`,'crit');
   else if(tier>=3 && meleeStreak===6) log(`💀 ${streakLabel()}!! ATK+${streakBonusAtk()} CRIT+${Math.round(streakBonusCrit()*100)}%`,'mega');
   else if(tier>=4 && meleeStreak===8) log(`⚡ ${streakLabel()}!!! The Library trembles.`,'mega');
+  if(tierUp) pulseStat('s-atk');
 }
 
 function playerCombat(m){
@@ -3080,6 +3088,8 @@ function killMonster(m){
   player.gold+=drop;kills++;combo++;
   if(floorStats)floorStats.kills++;
   pulseStat('s-gold');
+  pulseStat('s-kills');
+  spawnDmg(m.x,m.y,`+${drop}🪙`,'#f1c40f');
   clearTimeout(comboTimer);comboTimer=setTimeout(()=>{combo=0;showCombo(0);},4000);
   showCombo(combo);
   if(combo>=2)SFX.combo(combo);
@@ -3140,7 +3150,7 @@ function killMonster(m){
     log(`💎 +${bossMetaReward} Eternal Gold added to the Codex!`,'mega');
     killFeed(`🏆 GUARDIAN SLAIN: ${m.name}!`,'bk');
     flash(bossFlash,600);shakeGame('bigshake');
-    player.maxhp+=3;player.hp=Math.min(player.hp+6,player.maxhp);
+    player.maxhp+=3;player.hp=Math.min(player.hp+6,player.maxhp);pulseStat('hp-text','good');
     SFX.bossDie();
     // Triumphant chime + resume run music after a brief beat
     Music.stop(); // fade out the boss track
@@ -3264,6 +3274,7 @@ function restoreFromMagic(){
   spellCharges[bestIdx]--;
   const heal=Math.min(3, player.maxhp - player.hp);
   player.hp += heal;
+  pulseStat('hp-text','good');
 
   // FX: small heal at player
   spawnParticles(player.x,player.y,'#d891ff',8);
@@ -3384,6 +3395,7 @@ function castBlast(){
   SPELLS.forEach((sp,i)=>{ spellCharges[i]=0; });
   player.hp -= hpCost;
   if(floorStats){floorStats.spells++;floorStats.damageTaken+=hpCost;}
+  pulseStat('hp-text','bad');
   blastReady = false;
   blastCooldownFloor = floor;
   breakStreak();
@@ -3574,13 +3586,15 @@ function openShop(){
   document.getElementById('shop-modal').classList.remove('hidden');
   log(`🏪 Entered the merchant's lair. Press 1-4 to buy, ESC to leave.`,'sl');
 }
-function pulseStat(elementId){
+function pulseStat(elementId,variant){
   const el=document.getElementById(elementId);
   if(!el) return;
-  el.classList.remove('stat-pulse');
+  const all=['stat-pulse','stat-pulse-good','stat-pulse-bad'];
+  all.forEach(c=>el.classList.remove(c));
   void el.offsetWidth; // restart animation if already triggered
-  el.classList.add('stat-pulse');
-  setTimeout(()=>el.classList.remove('stat-pulse'),950);
+  const cls=variant==='good'?'stat-pulse-good':variant==='bad'?'stat-pulse-bad':'stat-pulse';
+  el.classList.add(cls);
+  setTimeout(()=>el.classList.remove(cls),950);
 }
 
 function spawnUpgradeFloat(x,y,text,color){
@@ -3601,7 +3615,7 @@ function buyItem(item){
   if(item.fn==='heal'){
     const h=Math.min(item.val,player.maxhp-player.hp);player.hp+=h;
     spawnUpgradeFloat(player.x,player.y,`+${h} HP`,'#2ecc71');log(`+${h} HP restored.`,'good');
-    pulseStat('hp-text');
+    pulseStat('hp-text','good');
     spawnParticles(player.x,player.y,'#2ecc71',16,5);
   }
   else if(item.fn==='atk'){
@@ -3625,7 +3639,7 @@ function buyItem(item){
   else if(item.fn==='fullheal'){
     player.hp=player.maxhp;
     spawnUpgradeFloat(player.x,player.y,'FULL RESTORE!','#d891ff');log(`Full Restore!`,'mega');
-    pulseStat('hp-text');
+    pulseStat('hp-text','good');
     spawnParticles(player.x,player.y,'#d891ff',28,7);
   }
   else if(item.fn==='throws'){
@@ -3963,14 +3977,14 @@ function closeFloorStats(){
 
 function nextFloor(){
   snapshotFloor(); // capture this floor before we change anything
-  floor++;player.hp=Math.min(player.hp+5,player.maxhp);
+  floor++;player.hp=Math.min(player.hp+5,player.maxhp);pulseStat('hp-text','good');
   // Tick buff
   if(player.buffFloors>0){player.buffFloors--;if(player.buffFloors<=0){player.buffAtk=0;statusEffects.rage=0;log(`The rage of the slain Guardian fades from your blood.`,'info');}}
   if(statusEffects.rage>0)statusEffects.rage--;
   throwsLeft+=WEAPONS[weaponIdx].throws; // knives stack between floors, no cap
   corpsePositions=new Set(); // new wing, fresh corpse map
   patienceTurns=0;
-  flash('white',300);log(`◈ Descending deeper into the Library. Wing ${floor}.`,'info');SFX.nextFloor();buildFloor();
+  flash('white',300);log(`◈ Descending deeper into the Library. Wing ${floor}.`,'info');SFX.nextFloor();buildFloor();pulseStat('s-floor');
 }
 let _deathInProgress=false;
 let _lastThemeIdx = -1;
@@ -4006,7 +4020,7 @@ function showBossRevealCard(boss){
         ">
       <!-- Top alert banner -->
       <div style="text-align:center;font-size:9px;color:#ff6644;letter-spacing:5px;margin-bottom:6px;animation:bossWarn 0.8s ease-in-out infinite alternate;">⚠ THREAT DETECTED ⚠</div>
-      <div style="text-align:center;font-size:8px;color:#aa3322;letter-spacing:3px;margin-bottom:14px;">— WING ${floor} GUARDIAN —</div>
+      <div style="text-align:center;font-size:8px;color:#aa3322;letter-spacing:3px;margin-bottom:14px;">— ${(currentTheme&&currentTheme.name?currentTheme.name.toUpperCase():'WING '+floor)} GUARDIAN · WING ${floor} —</div>
 
       <!-- Boss portrait -->
       <div style="text-align:center;margin-bottom:14px;">
