@@ -28,8 +28,13 @@ feels too generous.
 - [ ] Maximize stimulation feedback (VFX, screen shake, sound, particles, etc.)
 - [x] **Post-floor stats screen** (kills, gold, time, damage dealt/taken) + time-based bonus
 - [x] **One-tap continue** between floors
-- [ ] **Store purchase feedback** — animated stat-number tick-up when a stat increases, plus an "upgrade" sound effect
+- [x] **Store purchase feedback** — animated stat-number tick-up when a stat increases, plus an "upgrade" sound effect
 - [ ] **Better melee sounds** — current melee SFX feels thin; want more weight and variety on hits, crits, and weapon types
+- [ ] **Better throwing-knife sound + visualization** — a projectile that visibly flies from the player into the target and impacts, with a punchier SFX
+- [ ] **Floor-cleared chime** — small triumphant tone when the last monster on a floor dies
+- [ ] **Boss-floor stats screen variant** — color the post-floor stats modal yellow (or another distinct accent) when the cleared floor was a boss floor, to set the climax apart
+- [ ] **Death-screen replay polish** — play a small "ding" as each completed floor pops into the stacked pullback view
+- [ ] **Death-screen replay layout** — stack the completed-floor snapshots cleanly: drop the per-floor rotation and normalize cell scale so they sit neatly on top of each other (more layered upgrades possible later)
 
 The post-floor stats screen tracks kills, gold, attacks, throws, spells,
 damage dealt, and damage taken. Speed bonus tiers: LIGHTNING DUNNER (<45s),
