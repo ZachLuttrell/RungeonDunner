@@ -3531,6 +3531,23 @@ function playPullbackAnimation(onComplete){
   stage.style.cssText='position:relative;width:0;height:0;'; // zero-size centered anchor
   overlay.appendChild(stage);
 
+  // "FLOORS DESCENDED" headline — shiny purple, easy to brag in a screenshot.
+  // Total is the number of snapshots (which includes the death floor).
+  const headline=document.createElement('div');
+  headline.style.cssText=`
+    position:absolute;left:50%;top:6%;transform:translateX(-50%);
+    text-align:center;color:#e0b3ff;font-family:'Share Tech Mono',monospace;
+    letter-spacing:5px;text-transform:uppercase;
+    text-shadow:0 0 14px #d891ff,0 0 28px #9b59b6,0 0 56px rgba(155,89,182,0.7);
+    opacity:0;transition:opacity 0.6s ease-out 0.2s;pointer-events:none;
+  `;
+  headline.innerHTML=`
+    <div style="font-size:10px;color:#b282d1;letter-spacing:6px;margin-bottom:4px;text-shadow:0 0 10px rgba(155,89,182,0.5);">Floors Descended</div>
+    <div style="font-family:'UnifrakturMaguntia',cursive;font-size:54px;line-height:1;letter-spacing:2px;color:#f1d6ff;text-shadow:0 0 22px #d891ff,0 0 44px #9b59b6,0 0 88px rgba(216,145,255,0.6);">${snaps.length}</div>
+  `;
+  overlay.appendChild(headline);
+  requestAnimationFrame(()=>{ headline.style.opacity='1'; });
+
   // For each snapshot: an absolutely-positioned layer centered on its exit portal
   const layers=[];
   snaps.forEach((snap,idx)=>{
