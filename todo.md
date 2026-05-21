@@ -28,31 +28,41 @@ feels too generous.
 - [ ] Maximize stimulation feedback (VFX, screen shake, sound, particles, etc.)
 - [x] **Post-floor stats screen** (kills, gold, time, damage dealt/taken) + time-based bonus
 - [x] **One-tap continue** between floors
-- [x] **Store purchase feedback** — animated stat-number tick-up when a stat increases, plus an "upgrade" sound effect
-- [x] **Better melee sounds** — hit/crit SFX now layer with the melee streak: each successive hit adds sub-bass, mid harmonic, and sparkle tiers, so the audio escalates alongside the streak bonus (dopamaxxing the chain)
+- [x] **Par-based speed-bonus tiers** — stats-screen bonus tiers (LIGHTNING DUNNER / SWIFT / ON TIME / STEADY) compare clear time against a per-floor par derived from map area, enemy count, and boss presence, so dense floors aren't punished for taking longer. Par is shown next to the clear time.
+- [x] **Store purchase feedback** — animated stat-number tick-up when a stat increases, plus an "upgrade" sound effect (later scaled up: bigger pulse, upgrade-pop floating text, particle burst, longer flash, light shake on permanent upgrades)
+- [x] **Better melee sounds** — hit/crit SFX now layer with the melee streak: each successive hit adds sub-bass, mid harmonic, and sparkle tiers, so the audio escalates alongside the streak bonus (dopamaxxing the chain). Low-tier base volume bumped for the most-common sounds.
+- [x] **Melee weapon-swing animation** — the current weapon's emoji arcs in a 120° ease-out sweep from the player toward the target, pre-rotated tangent to the arc; bigger reach + slower duration on crits
 - [x] **Better throwing-knife sound + visualization** — daggers now visually fly from the player to the target (rotating to face direction, spinning during flight) with a new aerodynamic whoosh on release and a sharp thwack on impact
 - [x] **Floor-cleared chime** — small triumphant tone when the last monster on a floor dies (skipped on boss kills since bossVictory already plays)
 - [x] **Boss-floor stats screen variant** — post-floor stats modal now switches to gold/yellow accents with a "Boss Defeated · Wing N" header when the cleared floor was a boss floor
-- [x] **Death-screen replay polish** — small crystalline "ding" plays as each completed floor pops into the stacked pullback view (pitch climbs slightly per step)
-- [x] **Death-screen replay timing** — reveal cadence now ramps DOWN: 210ms → ×1.22 per step (capped at 720ms) so first few snaps in fast, later ones settle into a reading pace
+- [x] **Boss-portal gold/purple swirl** — boss-floor stats portal swaps the slower swirl to gold so purple + gold braid around the panel, matching the gold inner accents
+- [x] **Death-screen replay polish** — small crystalline "ding" plays as each completed floor pops into the stacked pullback view (pitch climbs per step; each note bends DOWN within its envelope so floors feel like they whoosh past as the player is sucked out)
+- [x] **Death-screen replay timing** — reveal cadence ramps DOWN: 210ms base × 1.16 per step (capped at 720ms) so first few snaps in fast, later ones settle into a reading pace
 - [x] **Death-screen replay layout** — per-floor rotation dropped, all layers stack at the same scale so portals align pixel-perfect at the center; depth is now expressed only via opacity
-- [x] **Portal transition around stats screen** — stats modal is now wrapped in two counter-rotating conic-gradient purple swirls over a radial-gradient void backdrop, with a radial deep-purple haze instead of a flat black overlay. Open: portal fades in (0.28s) then stats pop in. Close: stats shrink-and-fade (0.22s) while the portal keeps swirling, then the whole portal dissolves (0.36s) as the next floor builds underneath.
+- [x] **Death-screen hold-until-key** — instead of auto-fading 1.4s after the last reveal, a pulsing "Press any key to continue" hint waits for input so players can read / screenshot
+- [x] **"Floors Descended: N" headline** — shiny purple headline on the pullback overlay (small label + large UnifrakturMaguntia number) makes the screenshot brag instantly legible
+- [x] **Portal transition around stats screen** — stats modal wrapped in two counter-rotating conic-gradient swirls (one purple, one gold on boss floors) over a radial-gradient void backdrop. Soft radial mask fades the swirl to the edges; backdrop blur reduced for mobile. Open: portal fades in then stats pop. Close: stats shrink-and-fade while portal keeps swirling, then portal dissolves as the next floor builds.
 - [x] **More legible cursor** — replaced the dark 🗡 emoji cursor with a vector-drawn dagger: lavender blade with white center highlight, purple crossguard and pommel, all wrapped in a 2px black stroke outline so it stays readable on dark and light backgrounds alike. Hotspot pinned to the blade tip.
 - [x] **Powerful blast SFX** — replaced the warpOut layer in castBlast (which sounded like the death pullback) with a new dedicated SFX.blast() — sub-bass shockwave + thunderclap transient + mid crunch + debris tail
 - [x] **First-descent SFX** — new SFX.firstDescent() plays at startGame: gate-slam transient, descending whoosh, sub-bass landing, low ominous tail. Sells the "you stepped in" moment at the start of every run.
+- [x] **Gold counter pulse on gain** — every gold pickup, kill drop, and duplicate-scroll bonus now pulses the HUD gold value with the same scale-and-glow animation used by shop upgrades
+- [ ] **HP counter pulse on heal/damage** — mirror the gold pulse pattern: green pulse on heals (potion/elixir/full restore/Q-restore), red pulse on damage taken. Currently the HP number changes silently under the existing flash/shake.
+- [ ] **Kills counter pulse on kill** — same dopamine pattern as gold; counter pops on every kill including kill drops in killMonster
+- [ ] **ATK counter pulse on streak tier change** — when entering Blood Frenzy / Bloodlust / BERSERKER / GODSLAYER, the displayed ATK jumps but does so silently; pulse the value to celebrate the audio escalation we already ship
+- [ ] **Wing counter pulse on floor change** — small floor-number pop in the HUD when entering a new wing (subtle marker even though the stats-screen-to-portal transition already heralds it)
+- [ ] **Floating gold drop text on kill drops** — currently kill drops add gold silently (just particles + counter pulse). A "+N 🪙" floating from the dying enemy would visualize the drop and complete the loop
+- [ ] **Boss reveal card visual refresh** — the existing boss reveal card predates the new card patterns (weapon card, ability tooltip). Bring it up to the new fidelity: themed border glow, bigger glyph, dramatic stat block
 
-The post-floor stats screen tracks kills, gold, attacks, throws, spells,
-damage dealt, and damage taken. Speed bonus tiers: LIGHTNING DUNNER (<45s),
-SWIFT (<90s), ON TIME (<150s), STEADY (slower). Bonus scales with floor.
-Modal dismisses on any key or tap.
+Speed-bonus tiers are computed against a per-floor par time (≈
+5s + mapArea/70 + enemies×1.8 + boss×10). LIGHTNING DUNNER fires under
+70% par, SWIFT under 110%, ON TIME under 160%, STEADY beyond. Bonus
+gold still scales with floor depth.
 
-The stats screen is the single highest-ROI dopamine win in this list — short
-build, hits the variable-reward loop hard, and the speed bonus subtly enforces
-the "Rungeon" brand promise. Should be near the top of the queue. The general
-"more juice" goal isn't really a task — it's a lens we apply to every other
-change. Worth defining 2-3 concrete juice rules (e.g. every kill = screen shake
-+ flash + sound, every level-up = freeze-frame + zoom) so we don't have to
-debate it case by case.
+The general "more juice" goal isn't really a task — it's a lens we
+apply to every other change. After tonight's marathon most of the
+short-form polish surface is done; the remaining items above are the
+last micro-polish pulls before the next chunky tier of work (spell
+slot system, combo melee AoE, art slices, etc.).
 
 ## 2. Art / asset overhaul
 
@@ -140,10 +150,13 @@ scope — revisit when ideas firm up.
 
 ## Suggested shipping order
 
-1. **Post-floor stats + speed bonus + one-tap continue** — fastest dopamine hit, defines the game's identity as "Rungeon"
-2. **Floor-length randomization** — one-day change, fixes the music pacing complaint
+Tonight knocked out the first two and nearly all the juice work
+(items 1, 2, and most of 4). Remaining order:
+
+1. ~~Post-floor stats + speed bonus + one-tap continue~~ — shipped
+2. ~~Floor-length randomization~~ — shipped (theme blocks of 3–5 floors)
 3. **Spell slot system** (5+1) with current spells — sets up everything else
-4. **Juice pass** — codify the VFX/audio rules and apply them across existing events
+4. **Juice pass** — mostly shipped; remaining items are the section-1 micro-polishes above (HP / kills / ATK / Wing pulses, kill-drop floating text, boss-reveal card refresh)
 5. **First art vertical slice** — one floor (probably castle for visual punch) gets full custom sprites/textures
 6. **Combo-melee AoE**
 7. **Map manipulation spell** (tunnel, prototype only)
